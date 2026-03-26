@@ -1,0 +1,32 @@
+server:
+  port: 3002
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/anime_db?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false
+    username: root
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  security:
+    user:
+      name: admin
+      password: admin
+
+jwt:
+  secret: your-secret-key-change-in-production-please-use-a-long-and-secure-key
+  expiration: 604800000  # 7天
+
+logging:
+  level:
+    com.anime: DEBUG
+    org.springframework.security: DEBUG
