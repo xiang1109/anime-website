@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import type { Anime } from './types';
 import Navbar from './components/Navbar';
 import AnimeCard from './components/AnimeCard';
@@ -8,7 +8,9 @@ import RegisterModal from './components/RegisterModal';
 import AnimeDetailModal from './components/AnimeDetailModal';
 import SearchPage from './pages/SearchPage';
 import AdminPage from './pages/AdminPage';
+import YourNameSection from './components/YourNameSection';
 import { useAuth } from './context/AuthContext';
+import API_BASE_URL from './config/api';
 
 // 首页组件
 const HomePage: React.FC = () => {
@@ -28,7 +30,7 @@ const HomePage: React.FC = () => {
 
   const fetchAnimeList = async (page: number = 1) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/anime?page=${page}&limit=12`);
+      const response = await fetch(`${API_BASE_URL}/api/anime?page=${page}&limit=12`);
       const result = await response.json();
       const data = result.data || result;
       setAnimeList(data.animes || data);
@@ -117,6 +119,9 @@ const HomePage: React.FC = () => {
             </a>
           </div>
         </div>
+
+        {/* 秒速五厘米展示 */}
+        <YourNameSection />
 
         {user && (
           <div className="bg-surface border border-border rounded-xl p-4 mb-8">
@@ -227,6 +232,7 @@ const HomePage: React.FC = () => {
 const SearchPageWrapper: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
@@ -234,7 +240,7 @@ const SearchPageWrapper: React.FC = () => {
         onLoginClick={() => setShowLogin(true)}
         onRegisterClick={() => setShowRegister(true)}
         showHome={true}
-        onHomeClick={() => {}}
+        onHomeClick={() => navigate('/')}
       />
       <SearchPage />
       

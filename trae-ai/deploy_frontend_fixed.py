@@ -1,0 +1,96 @@
+import paramiko
+import os
+import tarfile
+
+hostname = '59.110.214.50'
+username = 'root'
+password = 'Xinmima1109'
+
+def run_command(ssh, command, show=True):
+    if show:
+        print(f"\n执行: {command[:100]}...")
+    stdin, stdout, stderr = ssh.exec_command(command)
+    out = stdout.read().decode('utf-8', errors='ignore')
+    err = stderr.read().decode('utf-8', errors='ignore')
+    if show and out:
+        print(out)
+    if show and err:
+        print("ERR:", err)
+    return out, err
+
+ssh = paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.connect(hostname, username=username, password=password, timeout=30)
+
+print("="*70)
+print("部署React前端到服务器")
+print("="*70)
+
+# 1. 备份当前前端
+print("\n=== 1. 备份当前前端 ===")
+run_command(ssh, "cp -r /usr/share/nginx/html /usr/share/nginx/html.bak")
+print("备份完成")
+
+# 2. 构建前端
+print("\n=== 2. 构建前端 ===")
+print("正在构建前端，请稍候...")
+import subprocess
+result = subprocess.run(["npm", "run", "build"], shell=True, capture_output=True, text=True)
+if result.returncode != 0:
+    print("构建失败:", result.stderr)
+else:
+    print("构建成功")
+
+# 3. 压缩构建文件
+print("\n=== 3. 压缩构建文件 ===")
+with tarfile.open("dist.tar.gz", "w:gz") as tar:
+    for root, dirs, files in os.walk("dist"):
+        for file in files:
+            file_path = os.path.join(root, file)
+            arcname = os.path.relpath(file_path, "dist")
+            tar.add(file_path, arcname=arcname)
+print("压缩完成")
+
+# 4. 上传到服务器
+print("\n=== 4. 上传到服务器 ===")
+sftp = ssh.open_sftp()
+sftp.put("dist.tar.gz", "/root/dist.tar.gz")
+sftp.close()
+print("上传完成")
+
+# 5. 解压到nginx目录
+print("\n=== 5. 解压到nginx目录 ===")
+run_command(ssh, "rm -rf /usr/share/nginx/html/*")
+run_command(ssh, "tar -xzf /root/dist.tar.gz -C /usr/share/nginx/html/")
+print("解压完成")
+
+# 6. 验证部署
+print("\n=== 6. 验证部署 ===")
+out, err = run_command(ssh, "ls -la /usr/share/nginx/html/")
+print(out)
+
+# 7. 清理临时文件
+print("\n=== 7. 清理临时文件 ===")
+os.remove("dist.tar.gz")
+run_command(ssh, "rm -f /root/dist.tar.gz")
+print("清理完成")
+
+# 8. 重启nginx
+print("\n=== 8. 重启nginx ===")
+out, err = run_command(ssh, "nginx -t")
+print(out)
+if err:
+    print("Nginx配置错误:", err)
+else:
+    run_command(ssh, "systemctl restart nginx")
+    print("Nginx重启成功")
+
+ssh.close()
+
+print("\n" + "="*70)
+print("前端部署完成！")
+print("="*70)
+print("\n请在浏览器中访问：")
+print("http://59.110.214.50")
+print("\n现在应该可以看到正确的React前端了！")
+print("="*70)

@@ -1,0 +1,1012 @@
+import express from 'express';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import mysql from 'mysql2/promise';
+
+const app = express();
+const PORT = 3001;
+const JWT_SECRET = 'your-secret-key-change-in-production';
+
+app.use(cors());
+app.use(express.json());
+
+// MySQL数据库连接配置
+const dbConfig = {
+  host: 'localhost',
+  user: 'root',
+  password: 'Xinmima1109',
+  database: 'anime_db',
+  charset: 'utf8mb4'
+};
+
+// 创建数据库连接池
+const pool = mysql.createPool(dbConfig);
+
+// 测试数据库连接
+async function testDbConnection() {
+  try {
+    const connection = await pool.getConnection();
+    console.log('Successfully connected to MySQL database!');
+    connection.release();
+  } catch (error) {
+    console.error('Failed to connect to MySQL database:', error);
+    process.exit(1);
+  }
+}
+
+testDbConnection();
+
+// ==================== 存储验证码和滑块验证（模拟Redis） ====================
+interface VerificationCode {
+  code: string;
+  timestamp: number;
+}
+
+interface SliderToken {
+  valid: boolean;
+  timestamp: number;
+}
+
+const smsCodes = new Map<string, VerificationCode>();
+const sliderTokens = new Map<string, SliderToken>();
+
+// 验证码过期时间：5分钟
+const CODE_EXPIRE_TIME = 5 * 60 * 1000;
+// 滑块验证过期时间：10分钟
+const SLIDER_EXPIRE_TIME = 10 * 60 * 1000;
+
+// 生成随机6位数字验证码
+function generateVerifyCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// 生成UUID
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// 验证邮箱格式
+function isValidEmail(email: string): boolean {
+  return /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/.test(email);
+}
+
+// ==================== 认证中间件 ====================
+const authenticateToken = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Access denied' });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    (req as any).user = decoded;
+    next();
+  } catch (error) {
+    res.status(403).json({ error: 'Invalid token' });
+  }
+};
+
+// ==================== 新接口：滑块验证 ====================
+app.get('/api/slider-token', (req, res) => {
+  const token = generateUUID();
+  sliderTokens.set(token, { valid: true, timestamp: Date.now() });
+  res.json({ success: true, message: '获取成功', data: { sliderToken: token } });
+});
+
+// ==================== 新接口：发送邮箱验证码 ====================
+app.post('/api/send-code', async (req, res) => {
+  try {
+    const { email, sliderToken } = req.body;
+
+    // 验证滑块
+    const slider = sliderTokens.get(sliderToken);
+    if (!slider || !slider.valid || Date.now() - slider.timestamp > SLIDER_EXPIRE_TIME) {
+      return res.status(400).json({ success: false, message: '滑块验证失败，请重新验证' });
+    }
+
+    // 验证邮箱格式
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ success: false, message: '邮箱格式不正确' });
+    }
+
+    // 生成验证码
+    const code = generateVerifyCode();
+    
+    // 存储验证码（使用email作为key）
+    smsCodes.set(email, { code, timestamp: Date.now() });
+    
+    // 移除已使用的滑块令牌，并生成新的
+    sliderTokens.delete(sliderToken);
+    const newSliderToken = generateUUID();
+    sliderTokens.set(newSliderToken, { valid: true, timestamp: Date.now() });
+
+    // 真实环境中这里需要调用第三方邮件服务API，如Nodemailer、SendGrid等
+    console.log(`【模拟邮件发送】邮箱: ${email}, 验证码: ${code}`);
+
+    res.json({
+      success: true,
+      message: '验证码发送成功',
+      data: {
+        sliderToken: newSliderToken,
+        // 注意：测试环境下返回验证码，生产环境不应返回
+        testCode: code
+      }
+    });
+  } catch (error) {
+    console.error('发送验证码错误:', error);
+    res.status(500).json({ success: false, message: '发送验证码失败' });
+  }
+});
+
+// ==================== 用户注册（修改为邮箱注册） ====================
+app.post('/api/register', async (req, res) => {
+  try {
+    const { username, email, password, verifyCode, sliderToken } = req.body;
+
+    // 验证滑块
+    const slider = sliderTokens.get(sliderToken);
+    if (!slider || !slider.valid || Date.now() - slider.timestamp > SLIDER_EXPIRE_TIME) {
+      return res.status(400).json({ success: false, message: '滑块验证失败，请重新验证' });
+    }
+
+    // 验证邮箱验证码
+    const storedCode = smsCodes.get(email);
+    if (!storedCode || storedCode.code !== verifyCode || Date.now() - storedCode.timestamp > CODE_EXPIRE_TIME) {
+      return res.status(400).json({ success: false, message: '验证码错误或已过期' });
+    }
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ success: false, message: '所有字段都是必填的' });
+    }
+
+    if (username.length < 3) {
+      return res.status(400).json({ success: false, message: '用户名至少需要3个字符' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: '密码至少需要6个字符' });
+    }
+
+    // 检查用户名或邮箱是否已存在
+    const [existingUsers] = await pool.execute(
+      'SELECT id, username, email FROM users WHERE username = ? OR email = ?',
+      [username, email]
+    ) as any[];
+
+    if (existingUsers.length > 0) {
+      const user = existingUsers[0];
+      if (user.username === username) {
+        return res.status(400).json({ success: false, message: '用户名已存在' });
+      }
+      if (user.email === email) {
+        return res.status(400).json({ success: false, message: '邮箱已被注册' });
+      }
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const avatar = `https://picsum.photos/seed/user${Date.now()}/100/100`;
+
+    // 插入新用户
+    const [result] = await pool.execute(
+      'INSERT INTO users (username, email, password, avatar) VALUES (?, ?, ?, ?)',
+      [username, email, hashedPassword, avatar]
+    ) as any;
+
+    const [newUsers] = await pool.execute(
+      'SELECT id, username, email, avatar FROM users WHERE id = ?',
+      [result.insertId]
+    ) as any[];
+
+    const newUser = newUsers[0];
+
+    // 生成JWT token
+    const token = jwt.sign(
+      { id: newUser.id, username: newUser.username, isAdmin: false },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      message: '注册成功',
+      data: {
+        token,
+        user: {
+          id: newUser.id,
+          username: newUser.username,
+          email: newUser.email,
+          avatar: newUser.avatar,
+          isAdmin: false
+        }
+      }
+    });
+  } catch (error) {
+    console.error('注册错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 用户登录 ====================
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: '用户名和密码都是必填的' });
+    }
+
+    // 查询用户
+    const [users] = await pool.execute(
+      'SELECT * FROM users WHERE username = ? OR email = ?',
+      [username, username]
+    ) as any[];
+
+    if (users.length === 0) {
+      return res.status(400).json({ success: false, message: '用户名或密码错误' });
+    }
+
+    const user = users[0];
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(400).json({ success: false, message: '用户名或密码错误' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username, isAdmin: user.username === 'admin' },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      message: '登录成功',
+      data: {
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          isAdmin: user.username === 'admin'
+        }
+      }
+    });
+  } catch (error) {
+    console.error('登录错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 管理员登录 ====================
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: '用户名和密码都是必填的' });
+    }
+
+    // 查询用户（只允许admin用户）
+    const [users] = await pool.execute(
+      'SELECT * FROM users WHERE username = ?',
+      ['admin']
+    ) as any[];
+
+    if (users.length === 0) {
+      return res.status(400).json({ success: false, message: '管理员不存在' });
+    }
+
+    const user = users[0];
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(400).json({ success: false, message: '用户名或密码错误' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, username: user.username, isAdmin: true },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      message: '管理员登录成功',
+      data: {
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          phone: user.phone,
+          avatar: user.avatar,
+          isAdmin: true
+        }
+      }
+    });
+  } catch (error) {
+    console.error('管理员登录错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取当前用户信息 ====================
+app.get('/api/user', authenticateToken, async (req, res) => {
+  try {
+    const userId = (req as any).user.id;
+
+    const [users] = await pool.execute(
+      'SELECT id, username, email, phone, avatar FROM users WHERE id = ?',
+      [userId]
+    ) as any[];
+
+    if (users.length === 0) {
+      return res.status(404).json({ success: false, message: '用户不存在' });
+    }
+
+    res.json({ success: true, data: users[0] });
+  } catch (error) {
+    console.error('获取用户信息错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 搜索动漫（支持按标题、描述、工作室搜索） ====================
+app.get('/api/anime/search', async (req, res) => {
+  try {
+    const { keyword, year, status, studio, page = 1, limit = 10 } = req.query;
+
+    let sql = 'SELECT * FROM animes WHERE 1=1';
+    let params: any[] = [];
+
+    // 关键词搜索（标题、描述、工作室）
+    if (keyword) {
+      sql += ' AND (title LIKE ? OR description LIKE ? OR studio LIKE ?)';
+      const searchPattern = `%${keyword}%`;
+      params.push(searchPattern, searchPattern, searchPattern);
+    }
+
+    // 按年份筛选
+    if (year) {
+      sql += ' AND release_year = ?';
+      params.push(year);
+    }
+
+    // 按状态筛选
+    if (status) {
+      sql += ' AND status = ?';
+      params.push(status);
+    }
+
+    // 按工作室筛选
+    if (studio) {
+      sql += ' AND studio LIKE ?';
+      params.push(`%${studio}%`);
+    }
+
+    // 按评分排序
+    sql += ' ORDER BY average_rating DESC, rating_count DESC';
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql, params) as any[];
+
+    // 获取总数
+    let countSql = 'SELECT COUNT(*) as total FROM animes WHERE 1=1';
+    let countParams: any[] = [];
+    
+    if (keyword) {
+      countSql += ' AND (title LIKE ? OR description LIKE ? OR studio LIKE ?)';
+      const searchPattern = `%${keyword}%`;
+      countParams.push(searchPattern, searchPattern, searchPattern);
+    }
+    if (year) {
+      countSql += ' AND release_year = ?';
+      countParams.push(year);
+    }
+    if (status) {
+      countSql += ' AND status = ?';
+      countParams.push(status);
+    }
+    if (studio) {
+      countSql += ' AND studio LIKE ?';
+      countParams.push(`%${studio}%`);
+    }
+
+    const [countResult] = await pool.execute(countSql, countParams) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('搜索错误:', error);
+    res.status(500).json({ success: false, message: '搜索失败' });
+  }
+});
+
+// ==================== 获取动漫列表 ====================
+app.get('/api/anime', async (req, res) => {
+  try {
+    const { page = 1, limit = 10, sort = 'rating' } = req.query;
+
+    let sql = 'SELECT * FROM animes';
+
+    // 排序
+    if (sort === 'rating') {
+      sql += ' ORDER BY average_rating DESC, rating_count DESC';
+    } else if (sort === 'year') {
+      sql += ' ORDER BY release_year DESC';
+    } else if (sort === 'name') {
+      sql += ' ORDER BY title ASC';
+    }
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute('SELECT COUNT(*) as total FROM animes') as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取动漫列表错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取筛选选项 ====================
+app.get('/api/anime/filter-options', async (req, res) => {
+  try {
+    // 获取所有年份
+    const [yearsResult] = await pool.execute(
+      'SELECT DISTINCT release_year FROM animes WHERE release_year IS NOT NULL ORDER BY release_year DESC'
+    ) as any[];
+
+    // 获取所有状态
+    const [statusResult] = await pool.execute(
+      'SELECT DISTINCT status FROM animes WHERE status IS NOT NULL'
+    ) as any[];
+
+    // 获取所有工作室
+    const [studioResult] = await pool.execute(
+      'SELECT DISTINCT studio FROM animes WHERE studio IS NOT NULL ORDER BY studio'
+    ) as any[];
+
+    res.json({
+      success: true,
+      data: {
+        years: yearsResult.map((item: any) => item.release_year),
+        statuses: statusResult.map((item: any) => item.status),
+        studios: studioResult.map((item: any) => item.studio)
+      }
+    });
+  } catch (error) {
+    console.error('获取筛选选项错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取单个动漫详情 ====================
+app.get('/api/anime/:id', async (req, res) => {
+  try {
+    const animeId = parseInt(req.params.id || '0');
+    if (isNaN(animeId) || animeId <= 0) {
+      return res.status(400).json({ success: false, message: '无效的动漫ID' });
+    }
+
+    const [animes] = await pool.execute(
+      'SELECT * FROM animes WHERE id = ?',
+      [animeId]
+    ) as any[];
+
+    if (animes.length === 0) {
+      return res.status(404).json({ success: false, message: '动漫不存在' });
+    }
+
+    res.json({ success: true, data: animes[0] });
+  } catch (error) {
+    console.error('获取动漫详情错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取用户对某个动漫的评分 ====================
+app.get('/api/anime/:id/user-rating', authenticateToken, async (req, res) => {
+  try {
+    const animeId = parseInt(req.params.id || '0');
+    if (isNaN(animeId) || animeId <= 0) {
+      return res.status(400).json({ success: false, message: '无效的动漫ID' });
+    }
+    const userId = (req as any).user.id;
+
+    const [ratings] = await pool.execute(
+      'SELECT rating FROM ratings WHERE user_id = ? AND anime_id = ?',
+      [userId, animeId]
+    ) as any[];
+
+    if (ratings.length > 0) {
+      res.json({ success: true, data: { rating: ratings[0].rating } });
+    } else {
+      res.json({ success: true, data: { rating: null } });
+    }
+  } catch (error) {
+    console.error('获取用户评分错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 提交评分 ====================
+app.post('/api/anime/:id/rate', authenticateToken, async (req, res) => {
+  try {
+    const animeId = parseInt(req.params.id || '0');
+    if (isNaN(animeId) || animeId <= 0) {
+      return res.status(400).json({ success: false, message: '无效的动漫ID' });
+    }
+    const userId = (req as any).user.id;
+    const { rating } = req.body;
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ success: false, message: '评分必须在1-5之间' });
+    }
+
+    // 检查动漫是否存在
+    const [animes] = await pool.execute('SELECT id FROM animes WHERE id = ?', [animeId]) as any[];
+    if (animes.length === 0) {
+      return res.status(404).json({ success: false, message: '动漫不存在' });
+    }
+
+    // 检查用户是否已经评分
+    const [existingRatings] = await pool.execute(
+      'SELECT id FROM ratings WHERE user_id = ? AND anime_id = ?',
+      [userId, animeId]
+    ) as any[];
+
+    if (existingRatings.length > 0) {
+      // 更新评分
+      await pool.execute(
+        'UPDATE ratings SET rating = ? WHERE user_id = ? AND anime_id = ?',
+        [rating, userId, animeId]
+      );
+    } else {
+      // 插入新评分
+      await pool.execute(
+        'INSERT INTO ratings (user_id, anime_id, rating) VALUES (?, ?, ?)',
+        [userId, animeId, rating]
+      );
+    }
+
+    // 重新计算平均评分
+    const [avgResult] = await pool.execute(
+      'SELECT AVG(rating) as avg_rating, COUNT(*) as count FROM ratings WHERE anime_id = ?',
+      [animeId]
+    ) as any[];
+
+    const avgRating = avgResult[0].avg_rating || 0;
+    const count = avgResult[0].count || 0;
+
+    // 更新动漫表中的平均评分
+    await pool.execute(
+      'UPDATE animes SET average_rating = ?, rating_count = ? WHERE id = ?',
+      [parseFloat(avgRating).toFixed(2), count, animeId]
+    );
+
+    res.json({
+      success: true,
+      message: '评分成功',
+      data: {
+        average_rating: parseFloat(avgRating),
+        rating_count: count,
+        user_rating: rating
+      }
+    });
+  } catch (error) {
+    console.error('评分错误:', error);
+    res.status(500).json({ success: false, message: '评分失败' });
+  }
+});
+
+// ==================== 获取评论列表 ====================
+app.get('/api/anime/:id/comments', async (req, res) => {
+  try {
+    const animeId = parseInt(req.params.id || '0');
+    if (isNaN(animeId) || animeId <= 0) {
+      return res.status(400).json({ success: false, message: '无效的动漫ID' });
+    }
+    const { page = 1, limit = 10 } = req.query;
+
+    const offset = (Number(page) - 1) * Number(limit);
+
+    const [comments] = await pool.execute(`
+      SELECT c.id, c.content, c.created_at, c.user_id, u.username, u.avatar
+      FROM comments c
+      JOIN users u ON c.user_id = u.id
+      WHERE c.anime_id = ?
+      ORDER BY c.created_at DESC
+      LIMIT ${Number(limit)} OFFSET ${offset}
+    `, [animeId]) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute(
+      'SELECT COUNT(*) as total FROM comments WHERE anime_id = ?',
+      [animeId]
+    ) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        comments,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取评论错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 发表评论 ====================
+app.post('/api/anime/:id/comments', authenticateToken, async (req, res) => {
+  try {
+    const animeId = parseInt(req.params.id || '0');
+    if (isNaN(animeId) || animeId <= 0) {
+      return res.status(400).json({ success: false, message: '无效的动漫ID' });
+    }
+    const userId = (req as any).user.id;
+    const { content } = req.body;
+
+    if (!content || content.trim().length === 0) {
+      return res.status(400).json({ success: false, message: '评论内容不能为空' });
+    }
+
+    // 插入评论
+    const [result] = await pool.execute(
+      'INSERT INTO comments (user_id, anime_id, content) VALUES (?, ?, ?)',
+      [userId, animeId, content.trim()]
+    ) as any;
+
+    // 获取评论详情
+    const [comments] = await pool.execute(`
+      SELECT c.id, c.content, c.created_at, c.user_id, u.username, u.avatar
+      FROM comments c
+      JOIN users u ON c.user_id = u.id
+      WHERE c.id = ?
+    `, [result.insertId]) as any[];
+
+    res.status(201).json({
+      success: true,
+      message: '评论发表成功',
+      data: comments[0]
+    });
+  } catch (error) {
+    console.error('发表评论错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 健康检查接口 ====================
+app.get('/api/health', (req, res) => {
+  res.json({ success: true, message: '服务运行正常', data: null });
+});
+
+// ==================== 管理员中间件 ====================
+const isAdmin = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: '未登录' });
+    }
+
+    // 检查用户是否为管理员（简单判断：用户名为admin或数据库中有is_admin字段）
+    const [users] = await pool.execute(
+      'SELECT username FROM users WHERE id = ?',
+      [userId]
+    ) as any[];
+
+    if (users.length === 0) {
+      return res.status(401).json({ success: false, message: '用户不存在' });
+    }
+
+    // 管理员判断逻辑：用户名为admin，或未来可以添加is_admin字段
+    const isAdminUser = users[0].username === 'admin';
+    
+    if (!isAdminUser) {
+      return res.status(403).json({ success: false, message: '需要管理员权限' });
+    }
+
+    next();
+  } catch (error) {
+    console.error('管理员验证错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+};
+
+// ==================== 管理员：获取所有动漫列表（带分页） ====================
+app.get('/api/admin/animes', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, keyword = '' } = req.query;
+    const offset = (Number(page) - 1) * Number(limit);
+
+    let sql = 'SELECT * FROM animes WHERE 1=1';
+    let params: any[] = [];
+    let countSql = 'SELECT COUNT(*) as total FROM animes WHERE 1=1';
+    let countParams: any[] = [];
+
+    if (keyword) {
+      sql += ' AND (title LIKE ? OR studio LIKE ? OR description LIKE ?)';
+      countSql += ' AND (title LIKE ? OR studio LIKE ? OR description LIKE ?)';
+      const searchPattern = `%${keyword}%`;
+      params.push(searchPattern, searchPattern, searchPattern);
+      countParams.push(searchPattern, searchPattern, searchPattern);
+    }
+
+    sql += ' ORDER BY id DESC LIMIT ? OFFSET ?';
+    params.push(Number(limit), offset);
+
+    const [animes] = await pool.execute(sql, params) as any[];
+    const [countResult] = await pool.execute(countSql, countParams) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取动漫列表错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 管理员：添加新动漫 ====================
+app.post('/api/admin/animes', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const {
+      title,
+      title_jp = '',
+      description = '',
+      cover_image = '',
+      episodes = 0,
+      status = '未播出',
+      release_year = null,
+      studio = '',
+      genre = '',
+      average_rating = 0,
+      rating_count = 0
+    } = req.body;
+
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ success: false, message: '动漫标题不能为空' });
+    }
+
+    // 检查动漫是否已存在
+    const [existingAnimes] = await pool.execute(
+      'SELECT id FROM animes WHERE title = ?',
+      [title.trim()]
+    ) as any[];
+
+    if (existingAnimes.length > 0) {
+      return res.status(400).json({ success: false, message: '该动漫已存在' });
+    }
+
+    // 插入新动漫
+    const [result] = await pool.execute(`
+      INSERT INTO animes (
+        title, title_jp, description, cover_image, episodes, status,
+        release_year, studio, genre, average_rating, rating_count, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `, [
+      title.trim(),
+      title_jp,
+      description,
+      cover_image || 'https://picsum.photos/seed/default-anime/300/400',
+      Number(episodes) || 0,
+      status,
+      release_year ? Number(release_year) : null,
+      studio,
+      genre,
+      parseFloat(average_rating as any) || 0,
+      Number(rating_count) || 0
+    ]) as any;
+
+    // 获取新添加的动漫
+    const [newAnimes] = await pool.execute(
+      'SELECT * FROM animes WHERE id = ?',
+      [result.insertId]
+    ) as any[];
+
+    res.status(201).json({
+      success: true,
+      message: '动漫添加成功',
+      data: newAnimes[0]
+    });
+  } catch (error) {
+    console.error('添加动漫错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 管理员：更新动漫信息 ====================
+app.put('/api/admin/animes/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const animeId = parseInt(req.params.id);
+    const {
+      title,
+      title_jp,
+      description,
+      cover_image,
+      episodes,
+      status,
+      release_year,
+      studio,
+      genre,
+      average_rating,
+      rating_count
+    } = req.body;
+
+    // 检查动漫是否存在
+    const [animes] = await pool.execute(
+      'SELECT id FROM animes WHERE id = ?',
+      [animeId]
+    ) as any[];
+
+    if (animes.length === 0) {
+      return res.status(404).json({ success: false, message: '动漫不存在' });
+    }
+
+    // 构建更新语句
+    const updateFields: string[] = [];
+    const updateValues: any[] = [];
+
+    if (title !== undefined) {
+      updateFields.push('title = ?');
+      updateValues.push(title);
+    }
+    if (title_jp !== undefined) {
+      updateFields.push('title_jp = ?');
+      updateValues.push(title_jp);
+    }
+    if (description !== undefined) {
+      updateFields.push('description = ?');
+      updateValues.push(description);
+    }
+    if (cover_image !== undefined) {
+      updateFields.push('cover_image = ?');
+      updateValues.push(cover_image);
+    }
+    if (episodes !== undefined) {
+      updateFields.push('episodes = ?');
+      updateValues.push(episodes);
+    }
+    if (status !== undefined) {
+      updateFields.push('status = ?');
+      updateValues.push(status);
+    }
+    if (release_year !== undefined) {
+      updateFields.push('release_year = ?');
+      updateValues.push(release_year);
+    }
+    if (studio !== undefined) {
+      updateFields.push('studio = ?');
+      updateValues.push(studio);
+    }
+    if (genre !== undefined) {
+      updateFields.push('genre = ?');
+      updateValues.push(genre);
+    }
+    if (average_rating !== undefined) {
+      updateFields.push('average_rating = ?');
+      updateValues.push(average_rating);
+    }
+    if (rating_count !== undefined) {
+      updateFields.push('rating_count = ?');
+      updateValues.push(rating_count);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ success: false, message: '没有要更新的内容' });
+    }
+
+    updateValues.push(animeId);
+
+    await pool.query(
+      `UPDATE animes SET ${updateFields.join(', ')} WHERE id = ?`,
+      updateValues
+    );
+
+    const [updatedAnimes] = await pool.query(
+      'SELECT * FROM animes WHERE id = ?',
+      [animeId]
+    ) as any[];
+
+    res.json({
+      success: true,
+      message: '动漫信息更新成功',
+      data: updatedAnimes[0]
+    });
+  } catch (error) {
+    console.error('更新动漫错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 管理员：删除动漫 ====================
+app.delete('/api/admin/animes/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const animeId = parseInt(req.params.id);
+
+    const [animes] = await pool.query(
+      'SELECT id, title FROM animes WHERE id = ?',
+      [animeId]
+    ) as any[];
+
+    if (animes.length === 0) {
+      return res.status(404).json({ success: false, message: '动漫不存在' });   
+    }
+
+    await pool.query('DELETE FROM ratings WHERE anime_id = ?', [animeId]);      
+    await pool.query('DELETE FROM comments WHERE anime_id = ?', [animeId]);     
+    await pool.query('DELETE FROM animes WHERE id = ?', [animeId]);
+
+    res.json({
+      success: true,
+      message: `动漫「${animes[0].title}」删除成功`,
+      data: null
+    });
+  } catch (error) {
+    console.error('删除动漫错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
