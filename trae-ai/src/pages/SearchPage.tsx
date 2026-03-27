@@ -15,6 +15,7 @@ const SearchPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     years: [],
     statuses: [],
@@ -40,7 +41,7 @@ const SearchPage: React.FC = () => {
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/anime/filter-options');
+        const response = await fetch('/api/anime/filter-options');
         const data = await response.json();
         setFilterOptions(data.data || data);
       } catch (error) {
@@ -62,7 +63,7 @@ const SearchPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      let url = `http://localhost:3001/api/anime/search?page=${page}&limit=12`;
+      let url = `/api/anime/search?page=${page}&limit=12`;
       
       if (keyword.trim()) {
         url += `&keyword=${encodeURIComponent(keyword)}`;
@@ -96,6 +97,7 @@ const SearchPage: React.FC = () => {
   const handleSearch = (keyword: string) => {
     setCurrentKeyword(keyword);
     setHasSearched(true);
+    setShowFilters(true);
     performSearch(keyword, selectedYear, selectedStatus, selectedStudio, 1);
   };
 
@@ -161,9 +163,28 @@ const SearchPage: React.FC = () => {
     return pages;
   };
 
-  // 初始加载时显示所有动漫
+  // 初始加载时显示所有动漫，但不显示筛选条件
   useEffect(() => {
-    performSearch('', null, null, null, 1);
+    const initialLoad = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/anime/search?page=1&limit=12');
+        const result = await response.json();
+        const data = result.data || result;
+        
+        setSearchResults(data.animes || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setTotalResults(data.pagination?.total || 0);
+        setCurrentPage(1);
+      } catch (error) {
+        console.error('Initial load failed:', error);
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    initialLoad();
   }, []);
 
   return (
@@ -181,18 +202,32 @@ const SearchPage: React.FC = () => {
         </div>
 
         {/* 筛选区域 */}
-        <SearchFilter
-          years={filterOptions.years}
-          statuses={filterOptions.statuses}
-          studios={filterOptions.studios}
-          selectedYear={selectedYear}
-          selectedStatus={selectedStatus}
-          selectedStudio={selectedStudio}
-          onYearChange={handleYearChange}
-          onStatusChange={handleStatusChange}
-          onStudioChange={handleStudioChange}
-          onReset={handleResetFilters}
-        />
+        {showFilters && (
+          <SearchFilter
+            years={filterOptions.years}
+            statuses={filterOptions.statuses}
+            studios={filterOptions.studios}
+            selectedYear={selectedYear}
+            selectedStatus={selectedStatus}
+            selectedStudio={selectedStudio}
+            onYearChange={handleYearChange}
+            onStatusChange={handleStatusChange}
+            onStudioChange={handleStudioChange}
+            onReset={handleResetFilters}
+          />
+        )}
+
+        {/* 显示筛选按钮 */}
+        {!showFilters && (
+          <div className="text-center mb-8">
+            <button
+              onClick={() => setShowFilters(true)}
+              className="px-6 py-2 bg-surface border border-border rounded-lg text-text hover:border-primary/50 transition-colors"
+            >
+              显示筛选条件
+            </button>
+          </div>
+        )}
 
         {/* 搜索结果统计 */}
         {hasSearched && (

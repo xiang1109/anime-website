@@ -30,7 +30,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
   const fetchComments = async () => {
     if (!anime) return;
     try {
-      const response = await fetch(`http://localhost:3001/api/anime/${anime.id}/comments`);
+      const response = await fetch(`/api/anime/${anime.id}/comments`);
       const result = await response.json();
       const data = result.data || result;
       setComments(data.comments || data);
@@ -42,7 +42,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
   const fetchUserRating = async () => {
     if (!anime || !token) return;
     try {
-      const response = await fetch(`http://localhost:3001/api/anime/${anime.id}/user-rating`, {
+      const response = await fetch(`/api/anime/${anime.id}/user-rating`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -59,7 +59,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
     if (!anime || !token) return;
     
     try {
-      const response = await fetch(`http://localhost:3001/api/anime/${anime.id}/rate`, {
+      const response = await fetch(`/api/anime/${anime.id}/rate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/anime/${anime.id}/comments`, {
+      const response = await fetch(`/api/anime/${anime.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

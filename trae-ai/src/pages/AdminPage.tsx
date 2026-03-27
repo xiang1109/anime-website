@@ -61,7 +61,7 @@ const AdminPage: React.FC = () => {
     
     setIsLoadingData(true);
     try {
-      let url = `http://localhost:3001/api/admin/animes?page=${page}&limit=10`;
+      let url = `/api/admin/animes?page=${page}&limit=10`;
       if (searchKeyword) {
         url += `&keyword=${encodeURIComponent(searchKeyword)}`;
       }
@@ -160,8 +160,8 @@ const AdminPage: React.FC = () => {
 
     try {
       const url = editingAnime
-        ? `http://localhost:3001/api/admin/animes/${editingAnime.id}`
-        : 'http://localhost:3001/api/admin/animes';
+        ? `/api/admin/animes/${editingAnime.id}`
+        : '/api/admin/animes';
 
       const method = editingAnime ? 'PUT' : 'POST';
 
@@ -201,7 +201,7 @@ const AdminPage: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/animes/${anime.id}`, {
+      const response = await fetch(`/api/admin/animes/${anime.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

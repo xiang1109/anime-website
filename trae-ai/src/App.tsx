@@ -8,9 +8,59 @@ import RegisterModal from './components/RegisterModal';
 import AnimeDetailModal from './components/AnimeDetailModal';
 import SearchPage from './pages/SearchPage';
 import AdminPage from './pages/AdminPage';
-import YourNameSection from './components/YourNameSection';
+import YourNameCorner from './components/YourNameCorner';
 import { useAuth } from './context/AuthContext';
 import API_BASE_URL from './config/api';
+
+// 樱花飘落效果组件
+const SakuraFall: React.FC = () => {
+  useEffect(() => {
+    const createPetal = () => {
+      const petal = document.createElement('div');
+      petal.className = 'sakura-petal';
+      
+      // 随机大小
+      const size = Math.random() * 10 + 5;
+      petal.style.width = `${size}px`;
+      petal.style.height = `${size}px`;
+      
+      // 随机位置
+      petal.style.left = `${Math.random() * 100}vw`;
+      petal.style.top = '-20px';
+      
+      // 随机动画持续时间
+      const duration = Math.random() * 10 + 10;
+      petal.style.animationDuration = `${duration}s`;
+      
+      // 随机延迟
+      petal.style.animationDelay = `${Math.random() * 5}s`;
+      
+      // 随机动画方向
+      petal.style.transform = `rotate(${Math.random() * 360}deg)`;
+      
+      document.body.appendChild(petal);
+      
+      // 动画结束后移除元素
+      setTimeout(() => {
+        if (petal.parentNode) {
+          petal.parentNode.removeChild(petal);
+        }
+      }, duration * 1000);
+    };
+    
+    // 初始创建樱花
+    for (let i = 0; i < 20; i++) {
+      setTimeout(createPetal, i * 500);
+    }
+    
+    // 持续创建樱花
+    const interval = setInterval(createPetal, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  return null;
+};
 
 // 首页组件
 const HomePage: React.FC = () => {
@@ -119,9 +169,6 @@ const HomePage: React.FC = () => {
             </a>
           </div>
         </div>
-
-        {/* 秒速五厘米展示 */}
-        <YourNameSection />
 
         {user && (
           <div className="bg-surface border border-border rounded-xl p-4 mb-8">
@@ -287,6 +334,8 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 function App() {
   return (
     <BrowserRouter>
+      <YourNameCorner />
+      <SakuraFall />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPageWrapper />} />

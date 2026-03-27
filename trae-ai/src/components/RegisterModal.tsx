@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import SliderVerification from './SliderVerification';
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -44,7 +45,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
 
   const fetchSliderToken = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/slider-token');
+      const response = await fetch('/api/slider-token');
       const result = await response.json();
       if (result.success) {
         setSliderToken(result.data.sliderToken);
@@ -54,10 +55,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     }
   };
 
-  // 模拟滑块验证（真实环境需要前端滑块组件）
-  const handleSliderVerify = () => {
-    setIsSliderVerified(true);
-    setError('');
+  // 滑块验证回调
+  const handleSliderVerify = (isVerified: boolean) => {
+    setIsSliderVerified(isVerified);
+    if (isVerified) {
+      setError('');
+    }
   };
 
   // 发送验证码
@@ -76,7 +79,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/send-code', {
+      const response = await fetch('/api/send-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +153,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -260,20 +263,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
             <label className="block text-sm font-medium text-text mb-2">
               滑块验证
             </label>
-            <div 
-              className={`w-full px-4 py-3 bg-background border rounded-lg text-center cursor-pointer transition-colors ${
-                isSliderVerified 
-                  ? 'border-green-500 bg-green-500/10 text-green-400' 
-                  : 'border-border text-text-muted hover:border-primary/50'
-              }`}
-              onClick={handleSliderVerify}
-            >
-              {isSliderVerified ? (
-                <span>✓ 验证成功</span>
-              ) : (
-                <span>点击完成滑块验证（模拟）</span>
-              )}
-            </div>
+            <SliderVerification onVerify={handleSliderVerify} />
           </div>
 
           <div>
