@@ -50,7 +50,7 @@ const Header: React.FC = () => {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">漫</span>
               </div>
-              <span className="text-xl font-bold text-foreground">动漫评分</span>
+              <span className="text-xl font-bold text-foreground">雾漫林间</span>
             </div>
           </Link>
 

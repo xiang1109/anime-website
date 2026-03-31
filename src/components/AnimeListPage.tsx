@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Anime } from '../types';
 import AnimeCard from './AnimeCard';
-import AnimeDetailModal from './AnimeDetailModal';
 import API_BASE_URL from '../config/api';
 
 interface AnimeListPageProps {
@@ -19,8 +18,6 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
-  const [showAnimeDetail, setShowAnimeDetail] = useState(false);
 
   useEffect(() => {
     fetchAnimeList(currentPage);
@@ -80,31 +77,28 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({
                 <AnimeCard
                   key={anime.id}
                   anime={anime}
-                  onClick={() => {
-                    setSelectedAnime(anime);
-                    setShowAnimeDetail(true);
-                  }}
+                  linkToDetail={true}
                 />
               ))}
             </div>
 
-            {/* 分页组件 - 显示页数 */}
-            {totalPages > 1 && (
+            {/* 分页组件 - 更明显的显示 */}
+            <div className="border-t border-border pt-8">
               <div className="flex justify-center items-center gap-4 flex-wrap">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 bg-primary text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-hover transition-colors"
+                  className="px-6 py-3 bg-primary text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors font-medium"
                 >
                   上一页
                 </button>
                 
-                {/* 显示当前页数和总页数 */}
-                <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
-                  <span className="text-foreground font-medium">
+                {/* 显示当前页数和总页数 - 更显眼 */}
+                <div className="flex items-center gap-3 px-6 py-3 bg-card border border-border rounded-lg shadow-md">
+                  <span className="text-lg font-bold text-foreground">
                     第 {currentPage} 页
                   </span>
-                  <span className="text-muted-foreground">
+                  <span className="text-lg text-muted-foreground">
                     / 共 {totalPages} 页
                   </span>
                 </div>
@@ -112,26 +106,15 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-primary text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-hover transition-colors"
+                  className="px-6 py-3 bg-primary text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors font-medium"
                 >
                   下一页
                 </button>
               </div>
-            )}
+            </div>
           </>
         )}
       </main>
-
-      {selectedAnime && (
-        <AnimeDetailModal
-          anime={selectedAnime}
-          isOpen={showAnimeDetail}
-          onClose={() => {
-            setShowAnimeDetail(false);
-            setSelectedAnime(null);
-          }}
-        />
-      )}
     </div>
   );
 };

@@ -218,25 +218,6 @@ const AnimeDetailPage: React.FC = () => {
               <p className="text-muted-foreground leading-relaxed">{anime.description}</p>
             </div>
 
-            {/* 平台介绍 */}
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="font-medium text-foreground mb-1">雾漫林间</h4>
-                  <p className="text-sm text-muted-foreground">
-                    雾漫林间专注于全球高分动漫推荐与评分，为你精选来自世界各地的优质动漫作品。
-                    通过我们的平台，你可以发现更多值得一看的好作品，分享你的观影体验，
-                    与其他漫迷一起构建专业的动漫推荐社区，探索精彩的动漫世界。
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* 评分区域 */}
             <div className="bg-muted rounded-xl p-6 mb-6">
               <h3 className="text-xl font-bold text-foreground mb-4">评分</h3>
@@ -262,7 +243,7 @@ const AnimeDetailPage: React.FC = () => {
             </div>
 
             {/* 评论区域 */}
-            <div className="bg-muted rounded-xl p-6">
+            <div className="bg-muted rounded-xl p-6 mb-6">
               <h3 className="text-xl font-bold text-foreground mb-4">评论</h3>
               
               {token && (
@@ -318,6 +299,27 @@ const AnimeDetailPage: React.FC = () => {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* 雾漫林间介绍 - 放在最底部，字体小一点 */}
+            <div className="border-t border-border pt-6">
+              <div className="bg-muted/50 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-foreground mb-1 text-sm">雾漫林间</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      雾漫林间专注于全球高分动漫推荐与评分，为你精选来自世界各地的优质动漫作品。
+                      通过我们的平台，你可以发现更多值得一看的好作品，分享你的观影体验，
+                      与其他漫迷一起构建专业的动漫推荐社区，探索精彩的动漫世界。
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

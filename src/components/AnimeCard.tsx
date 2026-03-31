@@ -13,6 +13,10 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
   onClick, 
   linkToDetail = true 
 }) => {
+  // 计算评分，如果为0或没有评分则显示N/A
+  const rating = Number(anime.average_rating);
+  const displayRating = rating > 0 ? rating.toFixed(1) : 'N/A';
+  
   const cardContent = (
     <div className="group">
       <div className="relative">
@@ -78,9 +82,9 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{anime.description}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <StarRating rating={Math.round(Number(anime.average_rating))} size="sm" readonly />
+            <StarRating rating={Math.round(rating)} size="sm" readonly />
             <span className="text-sm text-muted-foreground">
-              {Number(anime.average_rating) > 0 ? Number(anime.average_rating).toFixed(1) : 'N/A'}
+              {displayRating}
             </span>
           </div>
           <span className="text-sm text-muted-foreground">{anime.release_year}</span>
