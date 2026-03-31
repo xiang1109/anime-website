@@ -1,5 +1,8 @@
 package com.anime.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -12,7 +15,10 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class VerificationService {
 
-    // 存储验证码: phone -> (code, timestamp)
+    @Autowired
+    private JavaMailSender mailSender;
+    
+    // 存储验证码: email -> (code, timestamp)
     private final Map<String, VerificationCode> codeCache = new ConcurrentHashMap<>();
     
     // 存储滑块验证令牌: token -> isValid
@@ -24,38 +30,48 @@ public class VerificationService {
     // 滑块验证过期时间: 10分钟
     private static final long SLIDER_EXPIRE_TIME = TimeUnit.MINUTES.toMillis(10);
 
-    // 发送短信验证码
-    public String sendSmsCode(String phone) {
+    // 发送邮箱验证码
+    public String sendEmailCode(String email) {
         // 生成6位随机验证码
         String code = generateRandomCode();
-        System.out.println("【模拟短信发送】手机号: " + phone + ", 验证码: " + code);
         
         // 存储验证码
-        codeCache.put(phone, new VerificationCode(code, System.currentTimeMillis()));
+        codeCache.put(email, new VerificationCode(code, System.currentTimeMillis()));
         
-        // 在真实环境中，这里需要调用第三方短信服务API
-        // 如阿里云短信、腾讯云短信等
+        // 发送邮箱
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("your-email@qq.com");
+            message.setTo(email);
+            message.setSubject("【动漫评分】注册验证码");
+            message.setText("您的注册验证码为: " + code + "，有效期5分钟，请及时使用。");
+            mailSender.send(message);
+            System.out.println("【邮箱发送】邮箱: " + email + ", 验证码: " + code);
+        } catch (Exception e) {
+            System.err.println("邮箱发送失败: " + e.getMessage());
+            throw new RuntimeException("发送验证码失败，请检查邮箱地址是否正确");
+        }
         
         return code;
     }
 
-    // 验证短信验证码
-    public boolean verifySmsCode(String phone, String code) {
-        VerificationCode storedCode = codeCache.get(phone);
+    // 验证邮箱验证码
+    public boolean verifyEmailCode(String email, String code) {
+        VerificationCode storedCode = codeCache.get(email);
         if (storedCode == null) {
             return false;
         }
         
         // 检查是否过期
         if (System.currentTimeMillis() - storedCode.timestamp > CODE_EXPIRE_TIME) {
-            codeCache.remove(phone);
+            codeCache.remove(email);
             return false;
         }
         
         boolean isValid = storedCode.code.equals(code);
         if (isValid) {
             // 验证成功后删除验证码
-            codeCache.remove(phone);
+            codeCache.remove(email);
         }
         return isValid;
     }

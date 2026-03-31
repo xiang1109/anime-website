@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tradeai.mapper.AnimeMapper">
+    
+    <resultMap id="BaseResultMap" type="com.tradeai.entity.Anime">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="title_jp" property="titleJp"/>
+        <result column="description" property="description"/>
+        <result column="cover_image" property="coverImage"/>
+        <result column="episodes" property="episodes"/>
+        <result column="status" property="status"/>
+        <result column="release_year" property="releaseYear"/>
+        <result column="studio" property="studio"/>
+        <result column="genre" property="genre"/>
+        <result column="average_rating" property="averageRating"/>
+        <result column="rating_count" property="ratingCount"/>
+        <result column="nationality" property="nationality"/>
+        <result column="anime_type" property="animeType"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+    
+    <select id="selectByKeyword" resultMap="BaseResultMap">
+        SELECT a.* FROM animes a
+        WHERE a.deleted = 0
+        <if test="keyword != null and keyword != ''">
+            AND (a.title LIKE CONCAT('%', #{keyword}, '%') 
+                 OR a.title_jp LIKE CONCAT('%', #{keyword}, '%')
+                 OR a.description LIKE CONCAT('%', #{keyword}, '%')
+                 OR a.studio LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="year != null">
+            AND a.release_year = #{year}
+        </if>
+        <if test="status != null and status != ''">
+            AND a.status = #{status}
+        </if>
+        <if test="studio != null and studio != ''">
+            AND a.studio LIKE CONCAT('%', #{studio}, '%')
+        </if>
+        <if test="nationality != null and nationality != ''">
+            AND a.nationality = #{nationality}
+        </if>
+        <if test="animeType != null and animeType != ''">
+            AND a.anime_type = #{animeType}
+        </if>
+        ORDER BY 
+            <choose>
+                <when test="orderByRating == true">
+                    a.average_rating DESC, a.rating_count DESC
+                </when>
+                <when test="orderByCreated == true">
+                    a.created_at DESC
+                </when>
+                <otherwise>
+                    a.id DESC
+                </otherwise>
+            </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <select id="countByKeyword" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM animes a
+        WHERE a.deleted = 0
+        <if test="keyword != null and keyword != ''">
+            AND (a.title LIKE CONCAT('%', #{keyword}, '%') 
+                 OR a.title_jp LIKE CONCAT('%', #{keyword}, '%')
+                 OR a.description LIKE CONCAT('%', #{keyword}, '%')
+                 OR a.studio LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="year != null">
+            AND a.release_year = #{year}
+        </if>
+        <if test="status != null and status != ''">
+            AND a.status = #{status}
+        </if>
+        <if test="studio != null and studio != ''">
+            AND a.studio LIKE CONCAT('%', #{studio}, '%')
+        </if>
+        <if test="nationality != null and nationality != ''">
+            AND a.nationality = #{nationality}
+        </if>
+        <if test="animeType != null and animeType != ''">
+            AND a.anime_type = #{animeType}
+        </if>
+    </select>
+    
+    <select id="selectRandom" resultMap="BaseResultMap">
+        SELECT a.* FROM animes a
+        WHERE a.deleted = 0
+        ORDER BY RAND()
+        LIMIT #{limit}
+    </select>
+    
+    <select id="selectByRecentMonth" resultMap="BaseResultMap">
+        SELECT a.* FROM animes a
+        WHERE a.deleted = 0
+        AND a.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ORDER BY a.average_rating DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <update id="updateRating">
+        UPDATE animes
+        SET average_rating = #{averageRating},
+            rating_count = rating_count + 1,
+            updated_at = NOW()
+        WHERE id = #{animeId} AND deleted = 0
+    </update>
+    
+</mapper>

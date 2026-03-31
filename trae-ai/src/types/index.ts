@@ -1,42 +1,51 @@
+export interface Anime {
+  id: number;
+  title: string;
+  title_jp?: string;
+  description: string;
+  coverImage: string;
+  episodes: number;
+  status: string;
+  releaseYear: number;
+  studio: string;
+  genre?: string;
+  averageRating: number;
+  ratingCount: number;
+  nationality: string;
+  animeType: string;
+  isMovie: boolean;
+  createdAt: string;
+}
+
 export interface User {
   id: number;
   username: string;
   email: string;
-  avatar?: string;
-}
-
-export interface Anime {
-  id: number;
-  title: string;
-  description: string;
-  cover_image: string;
-  episodes: number;
-  status: string;
-  release_year: number;
-  studio: string;
-  average_rating: number;
-  rating_count: number;
-  created_at: string;
+  isAdmin: boolean;
+  createdAt: string;
 }
 
 export interface Comment {
   id: number;
-  user_id: number;
-  anime_id: number;
+  userId: number;
+  animeId: number;
   content: string;
   username: string;
-  avatar?: string;
-  created_at: string;
+  createdAt: string;
 }
 
-export interface AuthResponse {
-  token: string;
-  user: User;
-}
-
-export interface RatingResponse {
+export interface ApiResponse<T> {
+  success: boolean;
   message: string;
-  average_rating: number;
-  rating_count: number;
-  user_rating: number;
+  data: T;
+}
+
+export interface PagedResponse<T> {
+  data: T[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    total: number;
+    size: number;
+  };
 }

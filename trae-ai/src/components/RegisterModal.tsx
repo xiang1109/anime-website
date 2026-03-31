@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import SliderVerification from './SliderVerification';
+import API_BASE_URL from '../config/api';
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -14,7 +15,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verifyCode, setVerifyCode] = useState('');
-  const [sliderToken, setSliderToken] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,11 +23,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
   const [isSliderVerified, setIsSliderVerified] = useState(false);
   const { login } = useAuth();
 
-  // 获取滑块令牌
   useEffect(() => {
     if (isOpen) {
-      fetchSliderToken();
-      // 重置状态
       setError('');
       setSuccess(false);
       setIsSliderVerified(false);
@@ -35,7 +32,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     }
   }, [isOpen]);
 
-  // 倒计时
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -43,19 +39,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     }
   }, [countdown]);
 
-  const fetchSliderToken = async () => {
-    try {
-      const response = await fetch('/api/slider-token');
-      const result = await response.json();
-      if (result.success) {
-        setSliderToken(result.data.sliderToken);
-      }
-    } catch (error) {
-      console.error('获取滑块令牌失败:', error);
-    }
-  };
-
-  // 滑块验证回调
   const handleSliderVerify = (isVerified: boolean) => {
     setIsSliderVerified(isVerified);
     if (isVerified) {
@@ -63,7 +46,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     }
   };
 
-  // 发送验证码
   const handleSendCode = async () => {
     if (!email || !/^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/.test(email)) {
       setError('请输入正确的邮箱格式');
@@ -79,7 +61,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     setError('');
 
     try {
-      const response = await fetch('/api/send-code', {
+      const sliderResponse = await fetch(`${API_BASE_URL}/api/slider-token`);
+      const sliderResult = await sliderResponse.json();
+      if (!sliderResult.success) {
+        throw new Error('获取滑块令牌失败');
+      }
+      const sliderToken = sliderResult.data.sliderToken;
+
+      const response = await fetch(`${API_BASE_URL}/api/send-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,15 +82,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
         throw new Error(result.message || '发送验证码失败');
       }
 
-      // 更新滑块令牌
-      if (result.data?.sliderToken) {
-        setSliderToken(result.data.sliderToken);
-      }
-
-      // 设置倒计时
       setCountdown(60);
       
-      // 测试环境下显示验证码
       if (result.data?.testCode) {
         setVerifyCode(result.data.testCode);
         console.log('测试验证码:', result.data.testCode);
@@ -119,7 +101,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     setError('');
     setSuccess(false);
 
-    // 验证
     if (!username || username.length < 3) {
       setError('用户名至少需要3个字符');
       return;
@@ -153,7 +134,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/register', {
+      const sliderResponse = await fetch(`${API_BASE_URL}/api/slider-token`);
+      const sliderResult = await sliderResponse.json();
+      if (!sliderResult.success) {
+        throw new Error('获取滑块令牌失败');
+      }
+      const sliderToken = sliderResult.data.sliderToken;
+
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -163,7 +151,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
           email, 
           password, 
           verifyCode,
-          sliderToken 
+          sliderToken
         }),
       });
 
@@ -176,14 +164,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
       const data = result.data || result;
       setSuccess(true);
       
-      // 自动登录
       if (data.token && data.user) {
         login(data.token, data.user);
       }
 
       setTimeout(() => {
         onClose();
-        // 重置表单
         setUsername('');
         setEmail('');
         setPassword('');
@@ -258,7 +244,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
             />
           </div>
 
-          {/* 滑块验证区域 */}
           <div>
             <label className="block text-sm font-medium text-text mb-2">
               滑块验证
@@ -293,7 +278,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
                 {countdown > 0 ? `${countdown}s后重发` : '发送验证码'}
               </button>
             </div>
-            <p className="text-xs text-text-muted mt-1">测试环境：验证码将自动填入</p>
+            <p className="text-xs text-text-muted mt-1">验证码将发送到您的邮箱</p>
           </div>
 
           <div>

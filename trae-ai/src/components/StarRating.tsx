@@ -1,5 +1,3 @@
-
-
 import { useState } from 'react';
 
 interface StarRatingProps {
@@ -7,13 +5,15 @@ interface StarRatingProps {
   onRate?: (rating: number) => void;
   size?: 'sm' | 'md' | 'lg';
   readonly?: boolean;
+  interactive?: boolean;
 }
 
 const StarRating: React.FC<StarRatingProps> = ({
   rating,
   onRate,
   size = 'md',
-  readonly = false
+  readonly = false,
+  interactive = false
 }) => {
   const [hoverRating, setHoverRating] = useState(0);
   
@@ -24,7 +24,7 @@ const StarRating: React.FC<StarRatingProps> = ({
   };
 
   const handleStarClick = (starRating: number) => {
-    if (!readonly && onRate) {
+    if (!(readonly || !interactive) && onRate) {
       onRate(starRating);
     }
   };
@@ -36,12 +36,12 @@ const StarRating: React.FC<StarRatingProps> = ({
         return (
           <svg
             key={star}
-            className={`star ${sizeClasses[size]} ${readonly ? 'cursor-default' : 'cursor-pointer'}`}
+            className={`star ${sizeClasses[size]} ${(readonly || !interactive) ? 'cursor-default' : 'cursor-pointer'}`}
             fill={isFilled ? '#fbbf24' : 'none'}
             stroke={isFilled ? '#fbbf24' : '#94a3b8'}
             viewBox="0 0 24 24"
-            onMouseEnter={() => !readonly && setHoverRating(star)}
-            onMouseLeave={() => !readonly && setHoverRating(0)}
+            onMouseEnter={() => !(readonly || !interactive) && setHoverRating(star)}
+            onMouseLeave={() => !(readonly || !interactive) && setHoverRating(0)}
             onClick={() => handleStarClick(star)}
           >
             <path

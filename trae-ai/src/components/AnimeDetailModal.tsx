@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Anime, Comment } from '../types';
 import StarRating from './StarRating';
 import { useAuth } from '../context/AuthContext';
+import API_BASE_URL from '../config/api';
 
 interface AnimeDetailModalProps {
   isOpen: boolean;
@@ -16,42 +17,37 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
   const [averageRating, setAverageRating] = useState(0);
   const [ratingCount, setRatingCount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user, token } = useAuth();
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const { token } = useAuth();
 
   useEffect(() => {
     if (anime && isOpen) {
-      fetchComments();
-      fetchUserRating();
-      setAverageRating(Number(anime.average_rating));
-      setRatingCount(anime.rating_count);
+      setUserRating(null);
+      setAverageRating(Number(anime.averageRating || 0));
+      setRatingCount(anime.ratingCount || 0);
+      fetchComments(anime.id);
     }
   }, [anime, isOpen]);
 
-  const fetchComments = async () => {
-    if (!anime) return;
+  const fetchComments = async (animeId: number) => {
+    if (!animeId) return;
+    
+    setIsLoadingComments(true);
     try {
-      const response = await fetch(`/api/anime/${anime.id}/comments`);
+      const response = await fetch(`${API_BASE_URL}/api/anime/${animeId}/comments`);
       const result = await response.json();
-      const data = result.data || result;
-      setComments(data.comments || data);
+      
+      if (response.ok) {
+        const data = result.data || result;
+        setComments(data.comments || []);
+      } else {
+        setComments([]);
+      }
     } catch (error) {
       console.error('Failed to fetch comments:', error);
-    }
-  };
-
-  const fetchUserRating = async () => {
-    if (!anime || !token) return;
-    try {
-      const response = await fetch(`/api/anime/${anime.id}/user-rating`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const result = await response.json();
-      const data = result.data || result;
-      setUserRating(data.rating);
-    } catch (error) {
-      console.error('Failed to fetch user rating:', error);
+      setComments([]);
+    } finally {
+      setIsLoadingComments(false);
     }
   };
 
@@ -59,7 +55,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
     if (!anime || !token) return;
     
     try {
-      const response = await fetch(`/api/anime/${anime.id}/rate`, {
+      const response = await fetch(`${API_BASE_URL}/api/anime/${anime.id}/rate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,8 +69,10 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
       
       if (response.ok) {
         setUserRating(rating);
-        setAverageRating(data.average_rating);
-        setRatingCount(data.rating_count);
+        setAverageRating(data.averageRating || rating);
+        setRatingCount(data.ratingCount || (ratingCount + 1));
+      } else {
+        console.error('Failed to submit rating:', result.message);
       }
     } catch (error) {
       console.error('Failed to submit rating:', error);
@@ -87,7 +85,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
 
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/anime/${anime.id}/comments`, {
+      const response = await fetch(`${API_BASE_URL}/api/anime/${anime.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,6 +99,8 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
         const comment = result.data || result;
         setComments([comment, ...comments]);
         setNewComment('');
+      } else {
+        console.error('Failed to submit comment');
       }
     } catch (error) {
       console.error('Failed to submit comment:', error);
@@ -112,16 +112,17 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
   if (!isOpen || !anime) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 pb-8 overflow-y-auto" onClick={onClose}>
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" />
       <div
-        className="modal-content bg-surface rounded-xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden border border-border"
+        className="relative bg-surface rounded-xl w-full max-w-4xl mx-4 overflow-hidden border border-border shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative">
           <img
-            src={anime.cover_image}
+            src={anime.coverImage}
             alt={anime.title}
-            className="w-full h-64 object-cover"
+            className="w-full h-auto max-h-[50vh] object-contain"
           />
           <button
             onClick={onClose}
@@ -134,108 +135,143 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface to-transparent h-32" />
         </div>
 
-        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 256px)' }}>
+        <div className="p-6">
           <div className="mb-6">
             <h2 className="text-3xl font-bold text-text mb-2">{anime.title}</h2>
-            <div className="flex items-center gap-4 text-sm text-text-muted mb-4">
+            {anime.title_jp && (
+              <p className="text-lg text-text-muted mb-3">{anime.title_jp}</p>
+            )}
+            <div className="flex items-center gap-4 text-sm text-text-muted mb-4 flex-wrap">
               <span>{anime.studio}</span>
               <span>•</span>
-              <span>{anime.release_year}</span>
+              <span>{anime.releaseYear}</span>
               <span>•</span>
-              <span>{anime.episodes} 集</span>
+              <span>{anime.episodes || 12} 集</span>
               <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs">
                 {anime.status}
               </span>
+              {anime.isMovie && (
+                <span className="px-2 py-1 bg-purple-500/20 text-purple-500 rounded-full text-xs">
+                  剧场版
+                </span>
+              )}
+              {anime.animeType && (
+                <span className="px-2 py-1 bg-secondary/20 text-secondary rounded-full text-xs">
+                  {anime.animeType}
+                </span>
+              )}
+              {anime.nationality && (
+                <span className={`px-2 py-1 text-xs rounded-full ${
+                  anime.nationality === '日本' 
+                    ? 'bg-red-500/20 text-red-500' 
+                    : anime.nationality === '国产' 
+                    ? 'bg-green-500/20 text-green-500' 
+                    : 'bg-blue-500/20 text-blue-500'
+                }`}>
+                  {anime.nationality}
+                </span>
+              )}
             </div>
             <p className="text-text-muted leading-relaxed">{anime.description}</p>
           </div>
 
-          <div className="bg-background rounded-xl p-6 mb-6">
-            <h3 className="text-xl font-semibold text-text mb-4">评分</h3>
-            <div className="flex items-center gap-8">
-              <div className="text-center">
-                <div className="text-5xl font-bold text-primary mb-2">
-                  {averageRating > 0 ? averageRating.toFixed(1) : 'N/A'}
-                </div>
-                <div className="flex items-center justify-center mb-1">
-                  <StarRating rating={Math.round(averageRating)} size="md" readonly />
-                </div>
-                <span className="text-sm text-text-muted">{ratingCount} 人评价</span>
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
-              <div className="flex-1">
-                {user ? (
-                  <div>
-                    <p className="text-text-muted mb-2">你的评分：</p>
-                    <StarRating
-                      rating={userRating || 0}
-                      onRate={handleRate}
-                      size="lg"
-                    />
-                    {userRating && (
-                      <p className="text-sm text-success mt-2">
-                        你已评分：{userRating} 星
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-text-muted">请登录后评分</p>
-                )}
+              <div>
+                <h4 className="font-medium text-text mb-1">雾漫林间</h4>
+                <p className="text-sm text-text-muted">
+                  雾漫林间专注于全球高分动漫推荐与评分，为你精选来自世界各地的优质动漫作品。
+                  通过我们的平台，你可以发现更多值得一看的好作品，分享你的观影体验，
+                  与其他漫迷一起构建专业的动漫推荐社区，探索精彩的动漫世界。
+                </p>
               </div>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-xl font-semibold text-text mb-4">评论 ({comments.length})</h3>
+          <div className="bg-background rounded-xl p-6 mb-6">
+            <h3 className="text-xl font-bold text-text mb-4">评分</h3>
+            <div className="flex items-center gap-4">
+              <div className="text-4xl font-bold text-text">{averageRating.toFixed(1)}</div>
+              <div>
+                <StarRating rating={averageRating} size="lg" />
+                <p className="text-sm text-text-muted mt-1">{ratingCount} 人评分</p>
+              </div>
+            </div>
             
-            {user && (
+            {token && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-sm text-text mb-2">你的评分</p>
+                <StarRating
+                  rating={userRating || 0}
+                  onRate={handleRate}
+                  size="lg"
+                  interactive={true}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="bg-background rounded-xl p-6">
+            <h3 className="text-xl font-bold text-text mb-4">评论</h3>
+            
+            {token && (
               <form onSubmit={handleSubmitComment} className="mb-6">
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="写下你的评论..."
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text placeholder-text-muted resize-none mb-3"
+                  className="w-full px-4 py-3 bg-surface border border-border rounded-lg text-text placeholder-text-muted resize-none mb-3"
                   rows={3}
-                  required
+                  disabled={isSubmitting}
                 />
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !newComment.trim()}
-                    className="btn-primary px-6 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? '发布中...' : '发布评论'}
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !newComment.trim()}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? '发布中...' : '发布评论'}
+                </button>
               </form>
             )}
 
-            <div className="space-y-4">
-              {comments.length === 0 ? (
-                <p className="text-center text-text-muted py-8">暂无评论，来发表第一条评论吧！</p>
-              ) : (
-                comments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="comment-enter bg-background rounded-lg p-4"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                        <span className="text-white font-medium">
-                          {comment.username.charAt(0).toUpperCase()}
+            {isLoadingComments ? (
+              <div className="text-center py-8">
+                <div className="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
+                <p className="text-text-muted">加载评论中...</p>
+              </div>
+            ) : comments.length === 0 ? (
+              <div className="text-center py-8 text-text-muted">
+                暂无评论，快来抢沙发吧！
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="bg-surface rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary font-medium">
+                          {comment.username?.charAt(0) || '用'}
                         </span>
                       </div>
-                      <div>
-                        <p className="font-medium text-text">{comment.username}</p>
-                        <p className="text-xs text-text-muted">
-                          {new Date(comment.created_at).toLocaleString('zh-CN')}
-                        </p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-text">{comment.username || '用户'}</span>
+                          <span className="text-xs text-text-muted">
+                            {new Date(comment.createdAt).toLocaleDateString('zh-CN')}
+                          </span>
+                        </div>
+                        <p className="text-text-muted text-sm">{comment.content}</p>
                       </div>
                     </div>
-                    <p className="text-text-muted ml-13">{comment.content}</p>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

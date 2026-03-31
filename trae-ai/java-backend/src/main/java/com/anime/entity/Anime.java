@@ -17,6 +17,9 @@ public class Anime {
     @Column(nullable = false, length = 255)
     private String title;
 
+    @Column(name = "title_jp", length = 255)
+    private String titleJp;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -33,6 +36,15 @@ public class Anime {
 
     @Column(length = 100)
     private String studio;
+
+    @Column(length = 50)
+    private String nationality;
+
+    @Column(name = "anime_type", length = 50)
+    private String animeType;
+
+    @Column(name = "is_movie")
+    private Boolean isMovie;
 
     @Column(name = "average_rating", precision = 3, scale = 2)
     private BigDecimal averageRating;

@@ -9,42 +9,76 @@ interface AnimeCardProps {
 const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onClick }) => {
   return (
     <div
-      className="anime-card bg-surface rounded-xl overflow-hidden cursor-pointer border border-border"
+      className="anime-card bg-surface border border-border rounded-xl overflow-hidden cursor-pointer hover:border-primary transition-all duration-300"
       onClick={onClick}
     >
       <div className="relative">
         <img
-          src={anime.cover_image}
+          src={anime.coverImage}
           alt={anime.title}
           className="w-full h-64 object-cover"
         />
-        <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-lg">
-          <span className="text-sm font-medium text-text">{anime.status}</span>
+        <div className="absolute top-2 left-2 flex gap-2 flex-wrap">
+          {anime.nationality && anime.nationality !== '日本' && (
+            <span className={`px-2 py-1 text-xs rounded-full ${
+              anime.nationality === '国产' 
+                ? 'bg-green-500/80 text-white' 
+                : 'bg-blue-500/80 text-white'
+            }`}>
+              {anime.nationality}
+            </span>
+          )}
+          {anime.isMovie && (
+            <span className="px-2 py-1 text-xs rounded-full bg-purple-500/80 text-white">
+              剧场版
+            </span>
+          )}
+          {anime.animeType && (
+            <span className={`px-2 py-1 text-xs rounded-full ${
+              anime.animeType === '热血' 
+                ? 'bg-red-500/80 text-white' 
+                : anime.animeType === '冒险' 
+                ? 'bg-blue-500/80 text-white' 
+                : anime.animeType === '喜剧' 
+                ? 'bg-yellow-500/80 text-white' 
+                : anime.animeType === '科幻' 
+                ? 'bg-cyan-500/80 text-white' 
+                : anime.animeType === '悬疑' 
+                ? 'bg-gray-500/80 text-white' 
+                : anime.animeType === '治愈' 
+                ? 'bg-pink-500/80 text-white' 
+                : anime.animeType === '运动' 
+                ? 'bg-orange-500/80 text-white' 
+                : 'bg-gray-500/80 text-white'
+            }`}>
+              {anime.animeType}
+            </span>
+          )}
+        </div>
+        <div className="absolute top-2 right-2">
+          <span className={`px-2 py-1 text-xs rounded-full ${
+            anime.status === '连载中' 
+              ? 'bg-green-500/80 text-white' 
+              : 'bg-gray-500/80 text-white'
+          }`}>
+            {anime.status}
+          </span>
         </div>
       </div>
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-text mb-2 line-clamp-1">
-          {anime.title}
-        </h3>
-        <p className="text-sm text-text-muted mb-3 line-clamp-2">
-          {anime.description}
-        </p>
+        <h3 className="text-lg font-semibold text-text mb-2 line-clamp-1">{anime.title}</h3>
+        {anime.titleJp && (
+          <p className="text-xs text-text-muted mb-2 line-clamp-1">{anime.titleJp}</p>
+        )}
+        <p className="text-sm text-text-muted mb-3 line-clamp-2">{anime.description}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <StarRating rating={Math.round(Number(anime.average_rating))} size="sm" readonly />
+            <StarRating rating={Math.round(Number(anime.averageRating))} size="sm" readonly />
             <span className="text-sm text-text-muted">
-              {Number(anime.average_rating) > 0 ? Number(anime.average_rating).toFixed(1) : 'N/A'}
+              {Number(anime.averageRating) > 0 ? Number(anime.averageRating).toFixed(1) : 'N/A'}
             </span>
           </div>
-          <span className="text-xs text-text-muted">
-            {anime.rating_count} 评价
-          </span>
-        </div>
-        <div className="mt-3 pt-3 border-t border-border">
-          <div className="flex items-center justify-between text-xs text-text-muted">
-            <span>{anime.studio}</span>
-            <span>{anime.release_year}</span>
-          </div>
+          <span className="text-sm text-text-muted">{anime.releaseYear}</span>
         </div>
       </div>
     </div>

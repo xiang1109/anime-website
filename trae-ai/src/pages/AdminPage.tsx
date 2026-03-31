@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import API_BASE_URL from '../config/api';
 
 interface Anime {
   id: number;
@@ -33,7 +34,6 @@ const AdminPage: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // 表单数据
   const [formData, setFormData] = useState({
     title: '',
     title_jp: '',
@@ -48,20 +48,18 @@ const AdminPage: React.FC = () => {
     rating_count: 0
   });
 
-  // 检查管理员权限
   useEffect(() => {
     if (!isLoading && (!user || !isAdmin)) {
       navigate('/');
     }
   }, [user, isAdmin, isLoading, navigate]);
 
-  // 获取动漫列表
   const fetchAnimes = async (page: number = 1, searchKeyword: string = '') => {
     if (!token) return;
     
     setIsLoadingData(true);
     try {
-      let url = `/api/admin/animes?page=${page}&limit=10`;
+      let url = `${API_BASE_URL}/api/admin/animes?page=${page}&limit=10`;
       if (searchKeyword) {
         url += `&keyword=${encodeURIComponent(searchKeyword)}`;
       }
@@ -96,12 +94,10 @@ const AdminPage: React.FC = () => {
     }
   }, [token, isAdmin]);
 
-  // 搜索
   const handleSearch = () => {
     fetchAnimes(1, keyword);
   };
 
-  // 重置表单
   const resetForm = () => {
     setFormData({
       title: '',
@@ -122,13 +118,11 @@ const AdminPage: React.FC = () => {
     setSuccess('');
   };
 
-  // 打开添加表单
   const handleAdd = () => {
     resetForm();
     setShowForm(true);
   };
 
-  // 打开编辑表单
   const handleEdit = (anime: Anime) => {
     setFormData({
       title: anime.title,
@@ -147,7 +141,6 @@ const AdminPage: React.FC = () => {
     setShowForm(true);
   };
 
-  // 提交表单
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -160,8 +153,8 @@ const AdminPage: React.FC = () => {
 
     try {
       const url = editingAnime
-        ? `/api/admin/animes/${editingAnime.id}`
-        : '/api/admin/animes';
+        ? `${API_BASE_URL}/api/admin/animes/${editingAnime.id}`
+        : `${API_BASE_URL}/api/admin/animes`;
 
       const method = editingAnime ? 'PUT' : 'POST';
 
@@ -182,10 +175,8 @@ const AdminPage: React.FC = () => {
 
       setSuccess(result.message || (editingAnime ? '更新成功' : '添加成功'));
       
-      // 刷新列表
       fetchAnimes(currentPage, keyword);
       
-      // 2秒后关闭表单
       setTimeout(() => {
         resetForm();
       }, 1500);
@@ -194,14 +185,13 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  // 删除动漫
   const handleDelete = async (anime: Anime) => {
     if (!window.confirm(`确定要删除动漫「${anime.title}」吗？\n这将同时删除相关的评分和评论。`)) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/admin/animes/${anime.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/animes/${anime.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -216,7 +206,6 @@ const AdminPage: React.FC = () => {
 
       setSuccess(result.message || '删除成功');
       
-      // 刷新列表
       fetchAnimes(currentPage, keyword);
       
       setTimeout(() => setSuccess(''), 3000);
@@ -235,7 +224,7 @@ const AdminPage: React.FC = () => {
   }
 
   if (!user || !isAdmin) {
-    return null; // 会被重定向
+    return null;
   }
 
   return (
@@ -248,7 +237,6 @@ const AdminPage: React.FC = () => {
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 页面标题 */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-text mb-2">管理员后台</h1>
@@ -265,7 +253,6 @@ const AdminPage: React.FC = () => {
           </button>
         </div>
 
-        {/* 消息提示 */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6">
             {error}
@@ -277,7 +264,6 @@ const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* 搜索栏 */}
         <div className="bg-surface border border-border rounded-xl p-4 mb-6">
           <div className="flex gap-4">
             <div className="flex-1">
@@ -299,7 +285,6 @@ const AdminPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 添加/编辑表单 */}
         {showForm && (
           <div className="bg-surface border border-border rounded-xl p-6 mb-6">
             <h2 className="text-xl font-bold text-text mb-6">
@@ -449,7 +434,6 @@ const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* 动漫列表 */}
         <div className="bg-surface border border-border rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -529,7 +513,6 @@ const AdminPage: React.FC = () => {
             </table>
           </div>
 
-          {/* 分页 */}
           {totalPages > 1 && (
             <div className="px-4 py-4 border-t border-border flex items-center justify-between">
               <div className="text-sm text-text-muted">
@@ -539,14 +522,14 @@ const AdminPage: React.FC = () => {
                 <button
                   onClick={() => fetchAnimes(currentPage - 1, keyword)}
                   disabled={currentPage === 1}
-                  className="px-3 py-1 text-sm bg-surface border border-border rounded text-text disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary/50 transition-colors"
+                  className="px-3 py-1 bg-background border border-border text-text rounded hover:bg-background/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   上一页
                 </button>
                 <button
                   onClick={() => fetchAnimes(currentPage + 1, keyword)}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-1 text-sm bg-surface border border-border rounded text-text disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary/50 transition-colors"
+                  className="px-3 py-1 bg-background border border-border text-text rounded hover:bg-background/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   下一页
                 </button>

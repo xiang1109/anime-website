@@ -61,6 +61,9 @@ public class SecurityConfig {
                 .antMatchers("/api/admin/login").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/anime/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/anime/filter-options").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/admin/anime/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/admin/anime/batch-insert").permitAll()
+                .antMatchers(HttpMethod.DELETE, "/api/admin/anime/clear").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

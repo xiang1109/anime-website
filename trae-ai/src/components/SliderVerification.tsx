@@ -8,6 +8,7 @@ const SliderVerification: React.FC<SliderVerificationProps> = ({ onVerify }) => 
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState(0);
   const [isVerified, setIsVerified] = useState(false);
+  const [targetPosition, setTargetPosition] = useState(Math.random() * 200 + 50);
   const sliderRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +29,8 @@ const SliderVerification: React.FC<SliderVerificationProps> = ({ onVerify }) => 
     const handleMouseUp = () => {
       if (isDragging) {
         setIsDragging(false);
-        if (position > 200) {
+        // 验证位置是否在目标位置附近
+        if (Math.abs(position - targetPosition) < 10) {
           setIsVerified(true);
           onVerify(true);
         } else {
@@ -46,19 +48,43 @@ const SliderVerification: React.FC<SliderVerificationProps> = ({ onVerify }) => 
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, position, onVerify]);
+  }, [isDragging, position, targetPosition, onVerify]);
 
   const resetVerification = () => {
     setIsVerified(false);
     setPosition(0);
+    setTargetPosition(Math.random() * 200 + 50);
     onVerify(false);
   };
 
   return (
     <div className="w-full">
+      {/* 拼图验证区域 */}
+      <div className="relative w-full h-48 mb-4">
+        <div className="w-full h-full rounded-lg overflow-hidden">
+          <img 
+            src="https://img.freepik.com/free-photo/beautiful-mountain-landscape_1208-334.jpg" 
+            alt="验证背景" 
+            className="w-full h-full object-cover"
+          />
+          {/* 拼图缺口 */}
+          {!isVerified && (
+            <div 
+              className="absolute left-0 top-12 w-16 h-16 bg-white/30 backdrop-blur-sm"
+              style={{ left: `${targetPosition}px` }}
+            >
+              <div className="w-full h-full border-2 border-white/50 flex items-center justify-center">
+                <div className="w-12 h-12 bg-transparent border-2 border-white/70 rounded-sm"></div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 滑块区域 */}
       <div 
         ref={sliderRef}
-        className={`w-full h-10 bg-background border rounded-lg relative cursor-pointer transition-colors ${
+        className={`w-full h-12 bg-background border rounded-lg relative cursor-pointer transition-colors ${
           isVerified 
             ? 'border-green-500 bg-green-500/10' 
             : 'border-border hover:border-primary/50'
@@ -67,16 +93,18 @@ const SliderVerification: React.FC<SliderVerificationProps> = ({ onVerify }) => 
         {!isVerified ? (
           <div 
             ref={handleRef}
-            className="absolute left-0 top-0 h-10 w-10 bg-primary text-white rounded-lg flex items-center justify-center transition-transform"
+            className="absolute left-0 top-0 h-12 w-12 bg-white border border-border rounded-lg shadow-md flex items-center justify-center transition-transform"
             style={{ transform: `translateX(${position}px)` }}
             onMouseDown={handleMouseDown}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <div className="w-8 h-8 bg-primary/10 rounded-sm flex items-center justify-center">
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            </div>
           </div>
         ) : (
-          <div className="absolute left-0 top-0 w-full h-10 flex items-center justify-center">
+          <div className="absolute left-0 top-0 w-full h-12 flex items-center justify-center">
             <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
@@ -84,6 +112,7 @@ const SliderVerification: React.FC<SliderVerificationProps> = ({ onVerify }) => 
           </div>
         )}
       </div>
+      
       {isVerified && (
         <button 
           onClick={resetVerification}

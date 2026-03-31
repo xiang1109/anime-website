@@ -81,4 +81,16 @@ public class AnimeService {
             animeRepository.save(anime);
         }
     }
+
+    public Anime updateAnime(Anime anime) {
+        return animeRepository.save(anime);
+    }
+
+    public Anime createAnime(Anime anime) {
+        return animeRepository.save(anime);
+    }
+
+    public void clearAllAnime() {
+        animeRepository.deleteAll();
+    }
 }

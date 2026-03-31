@@ -34,21 +34,21 @@ public class UserService {
             throw new RuntimeException("滑块验证失败，请重新验证");
         }
 
-        // 验证短信验证码
-        if (!verificationService.verifySmsCode(request.getPhone(), request.getVerifyCode())) {
+        // 验证邮箱验证码
+        if (!verificationService.verifyEmailCode(request.getEmail(), request.getVerifyCode())) {
             throw new RuntimeException("验证码错误或已过期");
         }
 
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("用户名已存在");
         }
-        if (userRepository.existsByPhone(request.getPhone())) {
-            throw new RuntimeException("手机号已被注册");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("邮箱已被注册");
         }
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         // 设置默认头像
         user.setAvatar("https://picsum.photos/seed/user" + System.currentTimeMillis() + "/100/100");

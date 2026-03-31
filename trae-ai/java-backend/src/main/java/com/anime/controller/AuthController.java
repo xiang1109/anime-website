@@ -37,7 +37,7 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("获取成功", result));
     }
 
-    // 发送短信验证码
+    // 发送邮箱验证码
     @PostMapping("/send-code")
     public ResponseEntity<ApiResponse<Map<String, String>>> sendCode(@Valid @RequestBody SendCodeRequest request) {
         try {
@@ -46,11 +46,11 @@ public class AuthController {
                 return ResponseEntity.badRequest().body(ApiResponse.error("滑块验证失败，请重新验证"));
             }
 
-            // 检查手机号是否已注册
-            // 这里可以添加手机号是否已注册的检查，根据业务需求决定
+            // 检查邮箱是否已注册
+            // 这里可以添加邮箱是否已注册的检查，根据业务需求决定
 
-            // 发送验证码(模拟)
-            String code = verificationService.sendSmsCode(request.getPhone());
+            // 发送邮箱验证码
+            String code = verificationService.sendEmailCode(request.getEmail());
 
             // 生成新的滑块令牌供下一步使用
             String newSliderToken = verificationService.generateSliderToken();

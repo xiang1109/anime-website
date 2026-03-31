@@ -4,9 +4,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/anime_db?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false
-    username: root
-    password: 123456
+    url: jdbc:mysql://59.110.214.50:3306/anime_db?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&useSSL=false
+    username: anime_user
+    password: Xinmima1109
 
   jpa:
     hibernate:
@@ -21,6 +21,20 @@ spring:
     user:
       name: admin
       password: admin
+
+  # 邮箱配置
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 1184093507@qq.com
+    password: 
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 
 jwt:
   secret: your-secret-key-change-in-production-please-use-a-long-and-secure-key

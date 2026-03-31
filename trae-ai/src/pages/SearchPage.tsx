@@ -4,6 +4,7 @@ import SearchBar from '../components/SearchBar';
 import SearchFilter from '../components/SearchFilter';
 import AnimeCard from '../components/AnimeCard';
 import AnimeDetailModal from '../components/AnimeDetailModal';
+import API_BASE_URL from '../config/api';
 
 interface FilterOptions {
   years: number[];
@@ -22,37 +23,58 @@ const SearchPage: React.FC = () => {
     studios: [],
   });
   
-  // 筛选状态
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null);
   const [currentKeyword, setCurrentKeyword] = useState('');
   
-  // 分页
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalResults, setTotalResults] = useState(0);
   
-  // 动漫详情
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [showAnimeDetail, setShowAnimeDetail] = useState(false);
 
-  // 获取筛选选项
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const response = await fetch('/api/anime/filter-options');
+        const response = await fetch(`${API_BASE_URL}/api/anime/filter-options`);
         const data = await response.json();
         setFilterOptions(data.data || data);
       } catch (error) {
         console.error('Failed to fetch filter options:', error);
+        setFilterOptions({
+          years: [2024, 2023, 2022, 2021, 2020, 2019],
+          statuses: ['连载中', '完结'],
+          studios: ['漫雾动画', '樱花动画', '星际动画', '魔法动画', '机械动画', '忍者动画', '校园动画', '武侠动画', '侦探动画', '奇幻动画', '运动动画', '科幻动画']
+        });
       }
     };
 
     fetchFilterOptions();
+    fetchAnimeData();
   }, []);
 
-  // 搜索函数
+  const fetchAnimeData = async () => {
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/anime?page=1&limit=12`);
+      const result = await response.json();
+      const data = result.data || result;
+      
+      setSearchResults(data.animes || []);
+      setTotalPages(data.pagination?.totalPages || 1);
+      setCurrentPage(1);
+      setHasSearched(true);
+    } catch (error) {
+      console.error('Failed to fetch anime data:', error);
+      setSearchResults([]);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const performSearch = async (
     keyword: string,
     year: number | null = null,
@@ -63,7 +85,7 @@ const SearchPage: React.FC = () => {
     setIsLoading(true);
     
     try {
-      let url = `/api/anime/search?page=${page}&limit=12`;
+      let url = `${API_BASE_URL}/api/anime/search?page=${page}&limit=12`;
       
       if (keyword.trim()) {
         url += `&keyword=${encodeURIComponent(keyword)}`;
@@ -84,11 +106,12 @@ const SearchPage: React.FC = () => {
       
       setSearchResults(data.animes || []);
       setTotalPages(data.pagination?.totalPages || 1);
-      setTotalResults(data.pagination?.total || 0);
       setCurrentPage(page);
+      setHasSearched(true);
     } catch (error) {
       console.error('Search failed:', error);
       setSearchResults([]);
+      setTotalPages(1);
     } finally {
       setIsLoading(false);
     }
@@ -96,112 +119,44 @@ const SearchPage: React.FC = () => {
 
   const handleSearch = (keyword: string) => {
     setCurrentKeyword(keyword);
-    setHasSearched(true);
     setShowFilters(true);
+    setCurrentPage(1);
     performSearch(keyword, selectedYear, selectedStatus, selectedStudio, 1);
   };
 
-  const handleYearChange = (year: number | null) => {
+  const handleFilterChange = (year: number | null, status: string | null, studio: string | null) => {
     setSelectedYear(year);
-    setHasSearched(true);
-    performSearch(currentKeyword, year, selectedStatus, selectedStudio, 1);
-  };
-
-  const handleStatusChange = (status: string | null) => {
     setSelectedStatus(status);
-    setHasSearched(true);
-    performSearch(currentKeyword, selectedYear, status, selectedStudio, 1);
+    setSelectedStudio(studio);
+    setCurrentPage(1);
+    performSearch(currentKeyword, year, status, studio, 1);
   };
 
-  const handleStudioChange = (studio: string | null) => {
-    setSelectedStudio(studio);
-    setHasSearched(true);
-    performSearch(currentKeyword, selectedYear, selectedStatus, studio, 1);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    performSearch(currentKeyword, selectedYear, selectedStatus, selectedStudio, page);
   };
 
   const handleResetFilters = () => {
     setSelectedYear(null);
     setSelectedStatus(null);
     setSelectedStudio(null);
+    setCurrentPage(1);
     performSearch(currentKeyword, null, null, null, 1);
   };
-
-  const handlePageChange = (page: number) => {
-    performSearch(currentKeyword, selectedYear, selectedStatus, selectedStudio, page);
-  };
-
-  const handleAnimeClick = (anime: Anime) => {
-    setSelectedAnime(anime);
-    setShowAnimeDetail(true);
-  };
-
-  // 生成分页页码（优化显示）
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-    
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= maxVisible; i++) {
-          pages.push(i);
-        }
-      } else if (currentPage >= totalPages - 2) {
-        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
-          pages.push(i);
-        }
-      }
-    }
-    
-    return pages;
-  };
-
-  // 初始加载时显示所有动漫，但不显示筛选条件
-  useEffect(() => {
-    const initialLoad = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/anime/search?page=1&limit=12');
-        const result = await response.json();
-        const data = result.data || result;
-        
-        setSearchResults(data.animes || []);
-        setTotalPages(data.pagination?.totalPages || 1);
-        setTotalResults(data.pagination?.total || 0);
-        setCurrentPage(1);
-      } catch (error) {
-        console.error('Initial load failed:', error);
-        setSearchResults([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    initialLoad();
-  }, []);
 
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 搜索区域 */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-text mb-4">发现精彩动漫</h1>
-          <p className="text-text-muted mb-8">
-            搜索你喜欢的动漫，或使用筛选条件发现新作品
-          </p>
-          <div className="flex justify-center">
-            <SearchBar onSearch={handleSearch} />
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-text mb-2">搜索你喜欢的作品</h1>
+          <p className="text-text-muted">输入动漫名称、描述或其他关键词进行搜索</p>
         </div>
 
-        {/* 筛选区域 */}
+        <div className="mb-6">
+          <SearchBar onSearch={handleSearch} />
+        </div>
+
         {showFilters && (
           <SearchFilter
             years={filterOptions.years}
@@ -210,52 +165,21 @@ const SearchPage: React.FC = () => {
             selectedYear={selectedYear}
             selectedStatus={selectedStatus}
             selectedStudio={selectedStudio}
-            onYearChange={handleYearChange}
-            onStatusChange={handleStatusChange}
-            onStudioChange={handleStudioChange}
+            onYearChange={(year) => handleFilterChange(year, selectedStatus, selectedStudio)}
+            onStatusChange={(status) => handleFilterChange(selectedYear, status, selectedStudio)}
+            onStudioChange={(studio) => handleFilterChange(selectedYear, selectedStatus, studio)}
             onReset={handleResetFilters}
           />
         )}
 
-        {/* 显示筛选按钮 */}
-        {!showFilters && (
-          <div className="text-center mb-8">
-            <button
-              onClick={() => setShowFilters(true)}
-              className="px-6 py-2 bg-surface border border-border rounded-lg text-text hover:border-primary/50 transition-colors"
-            >
-              显示筛选条件
-            </button>
-          </div>
-        )}
-
-        {/* 搜索结果统计 */}
-        {hasSearched && (
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-text-muted">
-              {currentKeyword ? (
-                <>搜索 "<span className="text-text font-medium">{currentKeyword}</span>" 的结果</>
-              ) : (
-                <>全部动漫</>
-              )}
-              <span className="ml-2">({totalResults} 个结果)</span>
-            </p>
-          </div>
-        )}
-
-        {/* 搜索结果列表 */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-text-muted">搜索中...</div>
+          <div className="text-center py-12">
+            <div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-text-muted">加载中...</p>
           </div>
         ) : searchResults.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-text-muted mb-4">
-              {hasSearched ? '没有找到相关动漫' : '暂无数据'}
-            </div>
-            <p className="text-sm text-text-muted">
-              尝试使用其他关键词或调整筛选条件
-            </p>
+          <div className="text-center py-12">
+            <p className="text-text-muted">没有找到匹配的动漫</p>
           </div>
         ) : (
           <>
@@ -264,42 +188,30 @@ const SearchPage: React.FC = () => {
                 <AnimeCard
                   key={anime.id}
                   anime={anime}
-                  onClick={() => handleAnimeClick(anime)}
+                  onClick={() => {
+                    setSelectedAnime(anime);
+                    setShowAnimeDetail(true);
+                  }}
                 />
               ))}
             </div>
 
-            {/* 分页 */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex justify-center items-center gap-4">
                 <button
-                  onClick={() => handlePageChange(currentPage - 1)}
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 bg-surface border border-border rounded-lg text-text disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary/50 transition-colors"
+                  className="px-4 py-2 bg-primary text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-hover transition-colors"
                 >
                   上一页
                 </button>
-                
-                <div className="flex items-center gap-1">
-                  {getPageNumbers().map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                        page === currentPage
-                          ? 'bg-primary text-white'
-                          : 'bg-surface border border-border text-text hover:border-primary/50'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-
+                <span className="text-text-muted">
+                  第 {currentPage} 页，共 {totalPages} 页
+                </span>
                 <button
-                  onClick={() => handlePageChange(currentPage + 1)}
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-surface border border-border rounded-lg text-text disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary/50 transition-colors"
+                  className="px-4 py-2 bg-primary text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary-hover transition-colors"
                 >
                   下一页
                 </button>
@@ -309,13 +221,9 @@ const SearchPage: React.FC = () => {
         )}
       </main>
 
-      {/* 动漫详情弹窗 */}
       <AnimeDetailModal
         isOpen={showAnimeDetail}
-        onClose={() => {
-          setShowAnimeDetail(false);
-          setSelectedAnime(null);
-        }}
+        onClose={() => setShowAnimeDetail(false)}
         anime={selectedAnime}
       />
     </div>
