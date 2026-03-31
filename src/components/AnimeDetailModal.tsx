@@ -128,9 +128,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
             onClick={onClose}
             className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-full p-2 text-text hover:text-white transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <span className="text-xl">✕</span>
           </button>
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface to-transparent h-32" />
         </div>
@@ -261,9 +259,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
             <div className="bg-background/50 rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  <span>ℹ️</span>
                 </div>
                 <div>
                   <h4 className="font-medium text-text mb-1 text-sm">雾漫林间</h4>

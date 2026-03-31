@@ -4,7 +4,6 @@ import type { Anime, Comment } from '../types';
 import StarRating from '../components/StarRating';
 import { useAuth } from '../context/AuthContext';
 import API_BASE_URL from '../config/api';
-import { ArrowLeft } from 'lucide-react';
 
 const AnimeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -161,7 +160,7 @@ const AnimeDetailPage: React.FC = () => {
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-text-muted hover:text-text mb-6 transition-colors"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <span>←</span>
           <span>返回</span>
         </button>
 
@@ -306,9 +305,7 @@ const AnimeDetailPage: React.FC = () => {
               <div className="bg-background/50 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <span>ℹ️</span>
                   </div>
                   <div>
                     <h4 className="font-medium text-text mb-1 text-sm">雾漫林间</h4>

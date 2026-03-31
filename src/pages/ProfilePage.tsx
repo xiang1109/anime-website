@@ -5,7 +5,6 @@ import API_BASE_URL from '../config/api';
 import type { Anime } from '../types';
 import AnimeCard from '../components/AnimeCard';
 import AnimeDetailModal from '../components/AnimeDetailModal';
-import { User, Settings, LogOut } from 'lucide-react';
 
 const ProfilePage: React.FC = () => {
   const { user, logout, token } = useAuth();
@@ -51,7 +50,7 @@ const ProfilePage: React.FC = () => {
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
-                  <User className="w-12 h-12 text-primary" />
+                  <span className="text-text-muted text-2xl">👤</span>
                 </div>
               )}
             </div>
@@ -62,14 +61,14 @@ const ProfilePage: React.FC = () => {
               )}
               <div className="flex flex-wrap gap-3">
                 <button className="flex items-center gap-2 px-4 py-2 bg-background text-text rounded-lg hover:bg-background/80 transition-colors">
-                  <Settings className="w-4 h-4" />
+                  <span>⚙️</span>
                   <span>编辑资料</span>
                 </button>
                 <button
                   onClick={logout}
                   className="flex items-center gap-2 px-4 py-2 bg-danger text-white rounded-lg hover:bg-danger/90 transition-colors"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <span>🚪</span>
                   <span>退出登录</span>
                 </button>
               </div>

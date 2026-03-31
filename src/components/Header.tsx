@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { UserCircle, Search, Menu, X, LogIn, User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import SearchBar from './SearchBar';
 
@@ -76,7 +75,7 @@ const Header: React.FC = () => {
               onClick={() => setShowSearch(!showSearch)}
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-background transition-colors"
             >
-              <Search className="w-5 h-5 text-text-muted" />
+              <span className="text-text-muted">🔍</span>
             </button>
 
             {/* User Menu */}
@@ -90,9 +89,11 @@ const Header: React.FC = () => {
                     <img
                       src={user.avatar} alt={user.username} className="w-8 h-8 rounded-full" />
                     ) : (
-                      <UserCircle className="w-8 h-8 text-text-muted" />
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <span className="text-text-muted">👤</span>
+                      </div>
                     )}
-                  <ChevronDown className="w-4 h-4 text-text-muted" />
+                  <span className="text-text-muted">▼</span>
                 </button>
 
                 {/* Dropdown Menu */}
@@ -109,7 +110,7 @@ const Header: React.FC = () => {
                       onClick={() => setShowUserMenu(false)}
                       className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background transition-colors"
                     >
-                      <User className="w-4 h-4" />
+                      <span>👤</span>
                       <span>个人中心</span>
                     </Link>
                     {isAdmin && (
@@ -118,7 +119,7 @@ const Header: React.FC = () => {
                         onClick={() => setShowUserMenu(false)}
                         className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background transition-colors"
                       >
-                        <Settings className="w-4 h-4" />
+                        <span>⚙️</span>
                         <span>管理后台</span>
                       </Link>
                     )}
@@ -130,7 +131,7 @@ const Header: React.FC = () => {
                       }}
                       className="flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-background transition-colors w-full"
                     >
-                      <LogOut className="w-4 h-4" />
+                      <span>🚪</span>
                       <span>退出登录</span>
                     </button>
                   </div>
@@ -145,7 +146,7 @@ const Header: React.FC = () => {
                 }}
                 className="flex items-center gap-2 text-sm font-medium text-text hover:text-primary transition-colors"
               >
-                <LogIn className="w-4 h-4" />
+                <span>🔑</span>
                 <span className="hidden sm:inline">登录</span>
               </Link>
             )}
@@ -157,9 +158,9 @@ const Header: React.FC = () => {
               className="p-2 rounded-md hover:bg-background"
             >
               {isMenuOpen ? (
-                <X className="h-6 w-6 text-text" />
+                <span className="text-text">✕</span>
               ) : (
-                <Menu className="h-6 w-6 text-text" />
+                <span className="text-text">☰</span>
               )}
             </button>
           </div>
