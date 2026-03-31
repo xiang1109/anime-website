@@ -39,7 +39,7 @@ const Navbar: React.FC<NavbarProps> = ({
               </button>
             ) : (
               <Link to="/" className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
-·                漫雾林间动漫
+                雾漫林间动漫
               </Link>
             )}
           </div>
@@ -50,12 +50,6 @@ const Navbar: React.FC<NavbarProps> = ({
               className="text-text hover:text-primary transition-colors"
             >
               首页
-            </Link>
-            <Link 
-              to="/ranking" 
-              className="text-text hover:text-primary transition-colors"
-            >
-              动漫排行
             </Link>
             <Link 
               to="/recent" 
@@ -74,18 +68,6 @@ const Navbar: React.FC<NavbarProps> = ({
               className="text-text hover:text-primary transition-colors"
             >
               完结动漫
-            </Link>
-            <Link 
-              to="/chinese" 
-              className="text-text hover:text-primary transition-colors"
-            >
-              国产动漫
-            </Link>
-            <Link 
-              to="/japanese" 
-              className="text-text hover:text-primary transition-colors"
-            >
-              日本动漫
             </Link>
             <Link 
               to="/theater" 

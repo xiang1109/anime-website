@@ -13,9 +13,10 @@ app.use(express.json());
 
 // MySQL数据库连接配置
 const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: '123456',
+  host: '59.110.214.50',
+  port: 3306,
+  user: 'anime_user',
+  password: 'Xinmima1109',
   database: 'anime_db',
   charset: 'utf8mb4'
 };
@@ -435,6 +436,235 @@ app.get('/api/anime/search', async (req, res) => {
   }
 });
 
+// ==================== 获取连载动漫 ====================
+app.get('/api/anime/ongoing', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    let sql = `SELECT * FROM animes WHERE status = '连载中' 
+               ORDER BY average_rating DESC, rating_count DESC`;
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute(
+      "SELECT COUNT(*) as total FROM animes WHERE status = '连载中'"
+    ) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取连载动漫错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取完结动漫 ====================
+app.get('/api/anime/completed', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    let sql = `SELECT * FROM animes WHERE status = '已完结' 
+               ORDER BY average_rating DESC, rating_count DESC`;
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute(
+      "SELECT COUNT(*) as total FROM animes WHERE status = '已完结'"
+    ) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取完结动漫错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取国产动漫 ====================
+app.get('/api/anime/chinese', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    let sql = `SELECT * FROM animes WHERE nationality = '中国' 
+               ORDER BY average_rating DESC, rating_count DESC`;
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute(
+      "SELECT COUNT(*) as total FROM animes WHERE nationality = '中国'"
+    ) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取国产动漫错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取日本动漫 ====================
+app.get('/api/anime/japanese', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    let sql = `SELECT * FROM animes WHERE nationality = '日本' 
+               ORDER BY average_rating DESC, rating_count DESC`;
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute(
+      "SELECT COUNT(*) as total FROM animes WHERE nationality = '日本'"
+    ) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取日本动漫错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取剧场版 ====================
+app.get('/api/anime/theater', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    let sql = `SELECT * FROM animes WHERE is_movie = 1 
+               ORDER BY average_rating DESC, rating_count DESC`;
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute(
+      'SELECT COUNT(*) as total FROM animes WHERE is_movie = 1'
+    ) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取剧场版错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取每日推荐（随机推荐） ====================
+app.get('/api/anime/daily', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    // 使用随机排序，但还是保证高分的优先出现
+    let sql = `SELECT * FROM animes 
+               ORDER BY RAND() DESC, average_rating DESC, rating_count DESC`;
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute(
+      'SELECT COUNT(*) as total FROM animes'
+    ) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取每日推荐错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
 // ==================== 获取动漫列表 ====================
 app.get('/api/anime', async (req, res) => {
   try {
@@ -475,6 +705,50 @@ app.get('/api/anime', async (req, res) => {
     });
   } catch (error) {
     console.error('获取动漫列表错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
+// ==================== 获取新番动漫（最近2个月上映） ====================
+app.get('/api/anime/recent', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    // 计算当前年份
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    
+    // 用 release_year 筛选今年的，同时是近2个月的
+    let sql = `SELECT * FROM animes 
+               WHERE release_year = ? 
+               ORDER BY average_rating DESC, rating_count DESC`;
+    let params: any[] = [currentYear];
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql, params) as any[];
+
+    // 获取总数
+    let countSql = `SELECT COUNT(*) as total FROM animes WHERE release_year = ?`;
+    const [countResult] = await pool.execute(countSql, params) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取新番动漫错误:', error);
     res.status(500).json({ success: false, message: '服务器错误' });
   }
 });

@@ -5,7 +5,7 @@ const DailyPage: React.FC = () => {
     <AnimeListPage
       title="每日推荐"
       description="每日精选推荐动漫"
-      apiEndpoint="/api/anime"
+      apiEndpoint="/api/anime/daily"
     />
   );
 };

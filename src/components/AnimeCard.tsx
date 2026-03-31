@@ -14,7 +14,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onClick }) => {
     >
       <div className="relative">
         <img
-          src={anime.coverImage}
+          src={anime.cover_image}
           alt={anime.title}
           className="w-full h-64 object-cover"
         />
@@ -28,30 +28,30 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onClick }) => {
               {anime.nationality}
             </span>
           )}
-          {anime.isMovie && (
+          {anime.is_movie && (
             <span className="px-2 py-1 text-xs rounded-full bg-purple-500/80 text-white">
               剧场版
             </span>
           )}
-          {anime.animeType && (
+          {anime.anime_type && (
             <span className={`px-2 py-1 text-xs rounded-full ${
-              anime.animeType === '热血' 
+              anime.anime_type === '热血' 
                 ? 'bg-red-500/80 text-white' 
-                : anime.animeType === '冒险' 
+                : anime.anime_type === '冒险' 
                 ? 'bg-blue-500/80 text-white' 
-                : anime.animeType === '喜剧' 
+                : anime.anime_type === '喜剧' 
                 ? 'bg-yellow-500/80 text-white' 
-                : anime.animeType === '科幻' 
+                : anime.anime_type === '科幻' 
                 ? 'bg-cyan-500/80 text-white' 
-                : anime.animeType === '悬疑' 
+                : anime.anime_type === '悬疑' 
                 ? 'bg-gray-500/80 text-white' 
-                : anime.animeType === '治愈' 
+                : anime.anime_type === '治愈' 
                 ? 'bg-pink-500/80 text-white' 
-                : anime.animeType === '运动' 
+                : anime.anime_type === '运动' 
                 ? 'bg-orange-500/80 text-white' 
                 : 'bg-gray-500/80 text-white'
             }`}>
-              {anime.animeType}
+              {anime.anime_type}
             </span>
           )}
         </div>
@@ -67,18 +67,18 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onClick }) => {
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-text mb-2 line-clamp-1">{anime.title}</h3>
-        {anime.titleJp && (
-          <p className="text-xs text-text-muted mb-2 line-clamp-1">{anime.titleJp}</p>
+        {anime.title_jp && (
+          <p className="text-xs text-text-muted mb-2 line-clamp-1">{anime.title_jp}</p>
         )}
         <p className="text-sm text-text-muted mb-3 line-clamp-2">{anime.description}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <StarRating rating={Math.round(Number(anime.averageRating))} size="sm" readonly />
+            <StarRating rating={Math.round(Number(anime.average_rating))} size="sm" readonly />
             <span className="text-sm text-text-muted">
-              {Number(anime.averageRating) > 0 ? Number(anime.averageRating).toFixed(1) : 'N/A'}
+              {Number(anime.average_rating) > 0 ? Number(anime.average_rating).toFixed(1) : 'N/A'}
             </span>
           </div>
-          <span className="text-sm text-text-muted">{anime.releaseYear}</span>
+          <span className="text-sm text-text-muted">{anime.release_year}</span>
         </div>
       </div>
     </div>

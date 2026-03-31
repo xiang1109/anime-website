@@ -5,7 +5,7 @@ const ChinesePage: React.FC = () => {
     <AnimeListPage
       title="国产动漫"
       description="国产原创动漫作品"
-      apiEndpoint="/api/anime"
+      apiEndpoint="/api/anime/chinese"
     />
   );
 };

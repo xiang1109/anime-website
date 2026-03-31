@@ -5,18 +5,22 @@ import LoginModal from './components/LoginModal';
 import RegisterModal from './components/RegisterModal';
 import SearchPage from './pages/SearchPage';
 import AdminPage from './pages/AdminPage';
-import RankingPage from './pages/RankingPage';
 import RecentPage from './pages/RecentPage';
 import OngoingPage from './pages/OngoingPage';
 import CompletedPage from './pages/CompletedPage';
-import ChinesePage from './pages/ChinesePage';
-import JapanesePage from './pages/JapanesePage';
 import TheaterPage from './pages/TheaterPage';
 import DailyPage from './pages/DailyPage';
+import AnimeListPage from './components/AnimeListPage';
 import { useAuth } from './context/AuthContext';
 
 const HomePage: React.FC = () => {
-  return <Navigate to="/ranking" replace />;
+  return (
+    <AnimeListPage
+      title="全部动漫"
+      description="按评分排序的所有动漫作品"
+      apiEndpoint="/api/anime"
+    />
+  );
 };
 
 const App: React.FC = () => {
@@ -34,13 +38,10 @@ const App: React.FC = () => {
 
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/ranking" element={<RankingPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/recent" element={<RecentPage />} />
           <Route path="/ongoing" element={<OngoingPage />} />
           <Route path="/completed" element={<CompletedPage />} />
-          <Route path="/chinese" element={<ChinesePage />} />
-          <Route path="/japanese" element={<JapanesePage />} />
           <Route path="/theater" element={<TheaterPage />} />
           <Route path="/daily" element={<DailyPage />} />
           <Route path="/admin" element={user?.isAdmin ? <AdminPage /> : <Navigate to="/" replace />} />

@@ -3,18 +3,19 @@ export interface Anime {
   title: string;
   title_jp?: string;
   description: string;
-  coverImage: string;
+  cover_image: string;
   episodes: number;
   status: string;
-  releaseYear: number;
+  release_year: number;
+  release_date?: string;
   studio: string;
   genre?: string;
-  averageRating: number;
-  ratingCount: number;
+  average_rating: number | string;
+  rating_count: number;
   nationality: string;
-  animeType: string;
-  isMovie: boolean;
-  createdAt: string;
+  anime_type: string;
+  is_movie: number | boolean;
+  created_at: string;
 }
 
 export interface User {
@@ -27,11 +28,11 @@ export interface User {
 
 export interface Comment {
   id: number;
-  userId: number;
-  animeId: number;
+  user_id: number;
+  anime_id: number;
   content: string;
   username: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface ApiResponse<T> {

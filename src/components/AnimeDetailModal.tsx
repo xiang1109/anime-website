@@ -23,8 +23,8 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
   useEffect(() => {
     if (anime && isOpen) {
       setUserRating(null);
-      setAverageRating(Number(anime.averageRating || 0));
-      setRatingCount(anime.ratingCount || 0);
+      setAverageRating(Number(anime.average_rating || 0));
+      setRatingCount(Number(anime.rating_count || 0));
       fetchComments(anime.id);
     }
   }, [anime, isOpen]);
@@ -69,8 +69,8 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
       
       if (response.ok) {
         setUserRating(rating);
-        setAverageRating(data.averageRating || rating);
-        setRatingCount(data.ratingCount || (ratingCount + 1));
+        setAverageRating(data.average_rating || rating);
+        setRatingCount(data.rating_count || (ratingCount + 1));
       } else {
         console.error('Failed to submit rating:', result.message);
       }
@@ -120,7 +120,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
       >
         <div className="relative">
           <img
-            src={anime.coverImage}
+            src={anime.cover_image}
             alt={anime.title}
             className="w-full h-auto max-h-[50vh] object-contain"
           />
@@ -144,20 +144,20 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
             <div className="flex items-center gap-4 text-sm text-text-muted mb-4 flex-wrap">
               <span>{anime.studio}</span>
               <span>•</span>
-              <span>{anime.releaseYear}</span>
+              <span>{anime.release_year}</span>
               <span>•</span>
               <span>{anime.episodes || 12} 集</span>
               <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs">
                 {anime.status}
               </span>
-              {anime.isMovie && (
+              {anime.is_movie && (
                 <span className="px-2 py-1 bg-purple-500/20 text-purple-500 rounded-full text-xs">
                   剧场版
                 </span>
               )}
-              {anime.animeType && (
+              {anime.anime_type && (
                 <span className="px-2 py-1 bg-secondary/20 text-secondary rounded-full text-xs">
-                  {anime.animeType}
+                  {anime.anime_type}
                 </span>
               )}
               {anime.nationality && (
@@ -262,7 +262,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-text">{comment.username || '用户'}</span>
                           <span className="text-xs text-text-muted">
-                            {new Date(comment.createdAt).toLocaleDateString('zh-CN')}
+                            {new Date(comment.created_at).toLocaleDateString('zh-CN')}
                           </span>
                         </div>
                         <p className="text-text-muted text-sm">{comment.content}</p>

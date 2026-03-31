@@ -5,7 +5,7 @@ const TheaterPage: React.FC = () => {
     <AnimeListPage
       title="剧场版"
       description="动漫剧场版作品"
-      apiEndpoint="/api/anime"
+      apiEndpoint="/api/anime/theater"
     />
   );
 };

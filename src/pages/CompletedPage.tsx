@@ -5,7 +5,7 @@ const CompletedPage: React.FC = () => {
     <AnimeListPage
       title="完结动漫"
       description="已经完结的动漫作品"
-      apiEndpoint="/api/anime"
+      apiEndpoint="/api/anime/completed"
     />
   );
 };

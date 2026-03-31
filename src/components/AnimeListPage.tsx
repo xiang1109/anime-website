@@ -5,17 +5,16 @@ import AnimeDetailModal from './AnimeDetailModal';
 import API_BASE_URL from '../config/api';
 
 interface AnimeListPageProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   apiEndpoint: string;
 }
 
-const AnimeListPage: React.FC<AnimeListPageProps> = ({ title, description, apiEndpoint }) => {
+const AnimeListPage: React.FC<AnimeListPageProps> = ({ apiEndpoint }) => {
   const [animeList, setAnimeList] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalResults, setTotalResults] = useState(0);
   const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
   const [showAnimeDetail, setShowAnimeDetail] = useState(false);
 
@@ -33,12 +32,10 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ title, description, apiEn
       
       setAnimeList(data.animes || data.data || []);
       setTotalPages(data.pagination?.totalPages || 1);
-      setTotalResults(data.pagination?.total || 0);
     } catch (error) {
       console.error('Failed to fetch anime list:', error);
       setAnimeList([]);
       setTotalPages(1);
-      setTotalResults(0);
     } finally {
       setIsLoading(false);
     }
@@ -47,11 +44,6 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ title, description, apiEn
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-text mb-2">{title}</h1>
-          <p className="text-text-muted">{description}</p>
-        </div>
-
         {isLoading ? (
           <div className="text-center py-12">
             <div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
@@ -85,9 +77,6 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({ title, description, apiEn
                 >
                   上一页
                 </button>
-                <span className="text-text-muted">
-                  第 {currentPage} 页 / 共 {totalPages} 页（共 {totalResults} 条）
-                </span>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}

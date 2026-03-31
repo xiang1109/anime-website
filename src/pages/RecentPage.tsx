@@ -4,8 +4,8 @@ const RecentPage: React.FC = () => {
   return (
     <AnimeListPage
       title="新番动漫"
-      description="最新更新的动漫作品"
-      apiEndpoint="/api/anime"
+      description="最近2个月上映的动漫作品"
+      apiEndpoint="/api/anime/recent"
     />
   );
 };

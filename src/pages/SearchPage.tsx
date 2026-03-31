@@ -15,7 +15,6 @@ interface FilterOptions {
 const SearchPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     years: [],
@@ -45,7 +44,7 @@ const SearchPage: React.FC = () => {
         setFilterOptions({
           years: [2024, 2023, 2022, 2021, 2020, 2019],
           statuses: ['连载中', '完结'],
-          studios: ['漫雾动画', '樱花动画', '星际动画', '魔法动画', '机械动画', '忍者动画', '校园动画', '武侠动画', '侦探动画', '奇幻动画', '运动动画', '科幻动画']
+          studios: ['雾漫动画', '樱花动画', '星际动画', '魔法动画', '机械动画', '忍者动画', '校园动画', '武侠动画', '侦探动画', '奇幻动画', '运动动画', '科幻动画']
         });
       }
     };
@@ -65,7 +64,6 @@ const SearchPage: React.FC = () => {
       setSearchResults(data.animes || []);
       setTotalPages(data.pagination?.totalPages || 1);
       setCurrentPage(1);
-      setHasSearched(true);
     } catch (error) {
       console.error('Failed to fetch anime data:', error);
       setSearchResults([]);
@@ -107,7 +105,6 @@ const SearchPage: React.FC = () => {
       setSearchResults(data.animes || []);
       setTotalPages(data.pagination?.totalPages || 1);
       setCurrentPage(page);
-      setHasSearched(true);
     } catch (error) {
       console.error('Search failed:', error);
       setSearchResults([]);

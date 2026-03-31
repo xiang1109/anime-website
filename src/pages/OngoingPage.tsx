@@ -5,7 +5,7 @@ const OngoingPage: React.FC = () => {
     <AnimeListPage
       title="连载动漫"
       description="正在连载中的动漫作品"
-      apiEndpoint="/api/anime"
+      apiEndpoint="/api/anime/ongoing"
     />
   );
 };

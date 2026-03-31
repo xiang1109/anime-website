@@ -5,7 +5,7 @@ const JapanesePage: React.FC = () => {
     <AnimeListPage
       title="日本动漫"
       description="日本动漫作品"
-      apiEndpoint="/api/anime"
+      apiEndpoint="/api/anime/japanese"
     />
   );
 };
