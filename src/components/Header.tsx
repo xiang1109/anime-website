@@ -113,15 +113,25 @@ const Header: React.FC = () => {
                       <span>👤</span>
                       <span>个人中心</span>
                     </Link>
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background transition-colors"
-                      >
-                        <span>⚙️</span>
-                        <span>管理后台</span>
-                      </Link>
+                    {user?.username === 'admin' && (
+                      <>
+                        <Link
+                          to="/admin"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background transition-colors"
+                        >
+                          <span>⚙️</span>
+                          <span>管理后台</span>
+                        </Link>
+                        <Link
+                          to="/anime-manager"
+                          onClick={() => setShowUserMenu(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background transition-colors"
+                        >
+                          <span>🎬</span>
+                          <span>动漫图片管理</span>
+                        </Link>
+                      </>
                     )}
                     <div className="border-t border-border my-1" />
                     <button

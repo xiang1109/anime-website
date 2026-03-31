@@ -8,8 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "tsx watch server-simple.ts",
-    "server:prod": "tsx server-simple.ts"
+    "server": "tsx watch server-complete.ts",
+    "server:prod": "tsx server-complete.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
@@ -18,7 +18,7 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "lucide-react": "^1.7.0",
+    "axios": "^1.7.9",
     "mysql2": "^3.20.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

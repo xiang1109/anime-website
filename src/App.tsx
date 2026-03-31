@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import SearchPage from './pages/SearchPage';
 import AdminPage from './pages/AdminPage';
+import AnimeManagerPage from './pages/AnimeManagerPage';
 import RecentPage from './pages/RecentPage';
 import OngoingPage from './pages/OngoingPage';
 import CompletedPage from './pages/CompletedPage';
@@ -46,7 +47,8 @@ const AppContent: React.FC = () => {
         <Route path="/japanese" element={<JapanesePage />} />
         <Route path="/anime/:id" element={<AnimeDetailPage />} />
         <Route path="/profile" element={user ? <ProfilePage /> : <Navigate to="/" replace />} />
-        <Route path="/admin" element={user?.isAdmin ? <AdminPage /> : <Navigate to="/" replace />} />
+        <Route path="/admin" element={user?.username === 'admin' ? <AdminPage /> : <Navigate to="/" replace />} />
+        <Route path="/anime-manager" element={user?.username === 'admin' ? <AnimeManagerPage /> : <Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
