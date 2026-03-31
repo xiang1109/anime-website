@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import LoginModal from './components/LoginModal';
-import RegisterModal from './components/RegisterModal';
+import Header from './components/Header';
 import SearchPage from './pages/SearchPage';
 import AdminPage from './pages/AdminPage';
 import RecentPage from './pages/RecentPage';
@@ -10,8 +8,13 @@ import OngoingPage from './pages/OngoingPage';
 import CompletedPage from './pages/CompletedPage';
 import TheaterPage from './pages/TheaterPage';
 import DailyPage from './pages/DailyPage';
+import HiddenGemsPage from './pages/HiddenGemsPage';
+import ChinesePage from './pages/ChinesePage';
+import JapanesePage from './pages/JapanesePage';
+import ProfilePage from './pages/ProfilePage';
+import AnimeDetailPage from './pages/AnimeDetailPage';
 import AnimeListPage from './components/AnimeListPage';
-import { useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const HomePage: React.FC = () => {
   return (
@@ -23,57 +26,47 @@ const HomePage: React.FC = () => {
   );
 };
 
-const App: React.FC = () => {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
+const AppContent: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-background relative">
-        <Navbar
-          onLoginClick={() => setShowLogin(true)}
-          onRegisterClick={() => setShowRegister(true)}
-        />
+    <div className="min-h-screen bg-background relative">
+      <Header />
 
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/recent" element={<RecentPage />} />
-          <Route path="/ongoing" element={<OngoingPage />} />
-          <Route path="/completed" element={<CompletedPage />} />
-          <Route path="/theater" element={<TheaterPage />} />
-          <Route path="/daily" element={<DailyPage />} />
-          <Route path="/admin" element={user?.isAdmin ? <AdminPage /> : <Navigate to="/" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/recent" element={<RecentPage />} />
+        <Route path="/ongoing" element={<OngoingPage />} />
+        <Route path="/completed" element={<CompletedPage />} />
+        <Route path="/theater" element={<TheaterPage />} />
+        <Route path="/daily" element={<DailyPage />} />
+        <Route path="/hidden-gems" element={<HiddenGemsPage />} />
+        <Route path="/chinese" element={<ChinesePage />} />
+        <Route path="/japanese" element={<JapanesePage />} />
+        <Route path="/anime/:id" element={<AnimeDetailPage />} />
+        <Route path="/profile" element={user ? <ProfilePage /> : <Navigate to="/" replace />} />
+        <Route path="/admin" element={user?.isAdmin ? <AdminPage /> : <Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
-        <footer className="bg-surface border-t border-border py-8 mt-12">
-          <div className="container mx-auto px-4 text-center text-text-secondary">
-            <p>动漫搜索系统 - 帮助你找到喜欢的动漫作品</p>
-            <p className="text-sm mt-2">数据来源：网络收集整理，仅供学习交流使用</p>
-          </div>
-        </footer>
+      <footer className="bg-muted border-t border-border py-8 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
+          <p>动漫评分网站 - 帮助你找到喜欢的动漫作品</p>
+          <p className="text-sm mt-2">数据来源：网络收集整理，仅供学习交流使用</p>
+        </div>
+      </footer>
+    </div>
+  );
+};
 
-        <LoginModal
-          isOpen={showLogin}
-          onClose={() => setShowLogin(false)}
-          onSwitchToRegister={() => {
-            setShowLogin(false);
-            setShowRegister(true);
-          }}
-        />
-
-        <RegisterModal
-          isOpen={showRegister}
-          onClose={() => setShowRegister(false)}
-          onSwitchToLogin={() => {
-            setShowRegister(false);
-            setShowLogin(true);
-          }}
-        />
-      </div>
-    </BrowserRouter>
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 

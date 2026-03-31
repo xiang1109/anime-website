@@ -1,22 +1,25 @@
+import { Link } from 'react-router-dom';
 import type { Anime } from '../types';
 import StarRating from './StarRating';
 
 interface AnimeCardProps {
   anime: Anime;
-  onClick: () => void;
+  onClick?: () => void;
+  linkToDetail?: boolean;
 }
 
-const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onClick }) => {
-  return (
-    <div
-      className="anime-card bg-surface border border-border rounded-xl overflow-hidden cursor-pointer hover:border-primary transition-all duration-300"
-      onClick={onClick}
-    >
+const AnimeCard: React.FC<AnimeCardProps> = ({ 
+  anime, 
+  onClick, 
+  linkToDetail = true 
+}) => {
+  const cardContent = (
+    <div className="group">
       <div className="relative">
         <img
           src={anime.cover_image}
           alt={anime.title}
-          className="w-full h-64 object-cover"
+          className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute top-2 left-2 flex gap-2 flex-wrap">
           {anime.nationality && anime.nationality !== '日本' && (
@@ -66,21 +69,39 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, onClick }) => {
         </div>
       </div>
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-text mb-2 line-clamp-1">{anime.title}</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+          {anime.title}
+        </h3>
         {anime.title_jp && (
-          <p className="text-xs text-text-muted mb-2 line-clamp-1">{anime.title_jp}</p>
+          <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{anime.title_jp}</p>
         )}
-        <p className="text-sm text-text-muted mb-3 line-clamp-2">{anime.description}</p>
+        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{anime.description}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <StarRating rating={Math.round(Number(anime.average_rating))} size="sm" readonly />
-            <span className="text-sm text-text-muted">
+            <span className="text-sm text-muted-foreground">
               {Number(anime.average_rating) > 0 ? Number(anime.average_rating).toFixed(1) : 'N/A'}
             </span>
           </div>
-          <span className="text-sm text-text-muted">{anime.release_year}</span>
+          <span className="text-sm text-muted-foreground">{anime.release_year}</span>
         </div>
       </div>
+    </div>
+  );
+
+  const wrapperClass = "anime-card bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg";
+
+  if (linkToDetail) {
+    return (
+      <Link to={`/anime/${anime.id}`} className={wrapperClass}>
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={`${wrapperClass} cursor-pointer`} onClick={onClick}>
+      {cardContent}
     </div>
   );
 };

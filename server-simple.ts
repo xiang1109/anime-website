@@ -626,6 +626,45 @@ app.get('/api/anime/theater', async (req, res) => {
   }
 });
 
+// ==================== 获取B站冷门佳作 ====================
+app.get('/api/anime/hidden-gems', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    let sql = `SELECT * FROM animes 
+               WHERE is_hidden_gem = 1 
+               ORDER BY average_rating DESC, rating_count DESC`;
+
+    // 分页
+    const offset = (Number(page) - 1) * Number(limit);
+    sql += ` LIMIT ${Number(limit)} OFFSET ${offset}`;
+
+    const [animes] = await pool.execute(sql) as any[];
+
+    // 获取总数
+    const [countResult] = await pool.execute(
+      'SELECT COUNT(*) as total FROM animes WHERE is_hidden_gem = 1'
+    ) as any[];
+    const total = countResult[0].total;
+
+    res.json({
+      success: true,
+      data: {
+        animes,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取冷门佳作错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
 // ==================== 获取每日推荐（随机推荐） ====================
 app.get('/api/anime/daily', async (req, res) => {
   try {
