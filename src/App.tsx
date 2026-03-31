@@ -50,8 +50,8 @@ const AppContent: React.FC = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      <footer className="bg-muted border-t border-border py-8 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
+      <footer className="bg-surface border-t border-border py-8 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-text-muted">
           <p>动漫评分网站 - 帮助你找到喜欢的动漫作品</p>
           <p className="text-sm mt-2">数据来源：网络收集整理，仅供学习交流使用</p>
         </div>

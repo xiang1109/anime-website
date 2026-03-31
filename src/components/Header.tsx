@@ -41,7 +41,7 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="bg-background border-b border-border sticky top-0 z-50">
+    <header className="bg-surface border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -50,7 +50,7 @@ const Header: React.FC = () => {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">漫</span>
               </div>
-              <span className="text-xl font-bold text-foreground">雾漫林间</span>
+              <span className="text-xl font-bold text-text">雾漫林间</span>
             </div>
           </Link>
 
@@ -61,7 +61,7 @@ const Header: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(item.path) ? 'text-primary' : 'text-muted-foreground'
+                  isActive(item.path) ? 'text-primary' : 'text-text-muted'
                 }`}
               >
                 {item.label}
@@ -74,9 +74,9 @@ const Header: React.FC = () => {
             {/* Search Button - Desktop */}
             <button
               onClick={() => setShowSearch(!showSearch)}
-              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-muted transition-colors"
+              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full hover:bg-background transition-colors"
             >
-              <Search className="w-5 h-5 text-muted-foreground" />
+              <Search className="w-5 h-5 text-text-muted" />
             </button>
 
             {/* User Menu */}
@@ -84,30 +84,30 @@ const Header: React.FC = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 rounded-full hover:bg-muted p-1 transition-colors"
+                  className="flex items-center gap-2 rounded-full hover:bg-background p-1 transition-colors"
                 >
                   {user.avatar ? (
                     <img
                       src={user.avatar} alt={user.username} className="w-8 h-8 rounded-full" />
                     ) : (
-                      <UserCircle className="w-8 h-8 text-muted-foreground" />
+                      <UserCircle className="w-8 h-8 text-text-muted" />
                     )}
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-text-muted" />
                 </button>
 
                 {/* Dropdown Menu */}
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-lg shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-surface border border-border rounded-lg shadow-lg py-1 z-50">
                     <div className="px-4 py-3 border-b border-border">
-                      <p className="text-sm font-medium text-foreground">{user.username}</p>
+                      <p className="text-sm font-medium text-text">{user.username}</p>
                       {user.email && (
-                        <p className="text-xs text-muted-foreground mt-1">{user.email}</p>
+                        <p className="text-xs text-text-muted mt-1">{user.email}</p>
                       )}
                     </div>
                     <Link
                       to="/profile"
                       onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background transition-colors"
                     >
                       <User className="w-4 h-4" />
                       <span>个人中心</span>
@@ -116,7 +116,7 @@ const Header: React.FC = () => {
                       <Link
                         to="/admin"
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background transition-colors"
                       >
                         <Settings className="w-4 h-4" />
                         <span>管理后台</span>
@@ -128,7 +128,7 @@ const Header: React.FC = () => {
                         setShowUserMenu(false);
                         logout();
                       }}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-muted transition-colors w-full"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-background transition-colors w-full"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>退出登录</span>
@@ -143,7 +143,7 @@ const Header: React.FC = () => {
                   e.preventDefault();
                   // 这里可以打开登录模态框，暂时先不处理
                 }}
-                className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-2 text-sm font-medium text-text hover:text-primary transition-colors"
               >
                 <LogIn className="w-4 h-4" />
                 <span className="hidden sm:inline">登录</span>
@@ -154,12 +154,12 @@ const Header: React.FC = () => {
             <button
               className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-md hover:bg-muted"
+              className="p-2 rounded-md hover:bg-background"
             >
               {isMenuOpen ? (
-                <X className="h-6 w-6 text-foreground" />
+                <X className="h-6 w-6 text-text" />
               ) : (
-                <Menu className="h-6 w-6 text-foreground" />
+                <Menu className="h-6 w-6 text-text" />
               )}
             </button>
           </div>
@@ -177,7 +177,7 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
+        <div className="md:hidden border-t border-border bg-surface">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => (
               <Link
@@ -187,7 +187,7 @@ const Header: React.FC = () => {
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
                   isActive(item.path)
                     ? 'bg-primary/10 text-primary'
-                    : 'text-foreground hover:bg-muted'
+                    : 'text-text hover:bg-background'
                 }`}
               >
                 {item.label}

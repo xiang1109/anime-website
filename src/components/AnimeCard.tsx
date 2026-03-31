@@ -73,27 +73,27 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
         </div>
       </div>
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+        <h3 className="text-lg font-semibold text-text mb-2 line-clamp-1 group-hover:text-primary transition-colors">
           {anime.title}
         </h3>
         {anime.title_jp && (
-          <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{anime.title_jp}</p>
+          <p className="text-xs text-text-muted mb-2 line-clamp-1">{anime.title_jp}</p>
         )}
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{anime.description}</p>
+        <p className="text-sm text-text-muted mb-3 line-clamp-2">{anime.description}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <StarRating rating={Math.round(rating)} size="sm" readonly />
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-text-muted">
               {displayRating}
             </span>
           </div>
-          <span className="text-sm text-muted-foreground">{anime.release_year}</span>
+          <span className="text-sm text-text-muted">{anime.release_year}</span>
         </div>
       </div>
     </div>
   );
 
-  const wrapperClass = "anime-card bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg";
+  const wrapperClass = "anime-card bg-surface border border-border rounded-xl overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg";
 
   if (linkToDetail) {
     return (

@@ -24,7 +24,7 @@ const ProfilePage: React.FC = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <p className="text-muted-foreground mb-4">请先登录</p>
+          <p className="text-text-muted mb-4">请先登录</p>
           <Link
             to="/"
             className="text-primary hover:underline"
@@ -40,7 +40,7 @@ const ProfilePage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 用户信息卡片 */}
-        <div className="bg-card rounded-xl p-6 border border-border shadow-lg mb-8">
+        <div className="bg-surface rounded-xl p-6 border border-border shadow-lg mb-8">
           <div className="flex items-start gap-6">
             <div className="flex-shrink-0">
               {user.avatar ? (
@@ -56,18 +56,18 @@ const ProfilePage: React.FC = () => {
               )}
             </div>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-foreground mb-2">{user.username}</h1>
+              <h1 className="text-2xl font-bold text-text mb-2">{user.username}</h1>
               {user.email && (
-                <p className="text-muted-foreground mb-4">{user.email}</p>
+                <p className="text-text-muted mb-4">{user.email}</p>
               )}
               <div className="flex flex-wrap gap-3">
-                <button className="flex items-center gap-2 px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors">
+                <button className="flex items-center gap-2 px-4 py-2 bg-background text-text rounded-lg hover:bg-background/80 transition-colors">
                   <Settings className="w-4 h-4" />
                   <span>编辑资料</span>
                 </button>
                 <button
                   onClick={logout}
-                  className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-danger text-white rounded-lg hover:bg-danger/90 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>退出登录</span>
@@ -78,16 +78,16 @@ const ProfilePage: React.FC = () => {
         </div>
 
         {/* 评分记录 */}
-        <div className="bg-card rounded-xl p-6 border border-border shadow-lg">
-          <h2 className="text-xl font-bold text-foreground mb-4">我的评分</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border shadow-lg">
+          <h2 className="text-xl font-bold text-text mb-4">我的评分</h2>
           {isLoading ? (
             <div className="text-center py-8">
               <div className="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
-              <p className="text-muted-foreground">加载中...</p>
+              <p className="text-text-muted">加载中...</p>
             </div>
           ) : ratedAnimes.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">还没有评分记录</p>
+              <p className="text-text-muted">还没有评分记录</p>
               <Link
                 to="/"
                 className="text-primary hover:underline mt-2 inline-block"

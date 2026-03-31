@@ -214,7 +214,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
                 <button
                   type="submit"
                   disabled={isSubmitting || !newComment.trim()}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? '发布中...' : '发布评论'}
                 </button>
@@ -258,7 +258,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
 
           {/* 雾漫林间介绍 - 放在最底部，字体小一点 */}
           <div className="border-t border-border pt-6">
-            <div className="bg-muted/50 rounded-lg p-4">
+            <div className="bg-background/50 rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,8 +266,8 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
                   </svg>
                 </div>
                 <div>
-                  <h4 className="font-medium text-foreground mb-1 text-sm">雾漫林间</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <h4 className="font-medium text-text mb-1 text-sm">雾漫林间</h4>
+                  <p className="text-xs text-text-muted leading-relaxed">
                     雾漫林间专注于全球高分动漫推荐与评分，为你精选来自世界各地的优质动漫作品。
                     通过我们的平台，你可以发现更多值得一看的好作品，分享你的观影体验，
                     与其他漫迷一起构建专业的动漫推荐社区，探索精彩的动漫世界。

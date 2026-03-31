@@ -131,7 +131,7 @@ const AnimeDetailPage: React.FC = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-muted-foreground">加载中...</p>
+          <p className="text-text-muted">加载中...</p>
         </div>
       </div>
     );
@@ -141,7 +141,7 @@ const AnimeDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <p className="text-muted-foreground mb-4">动漫不存在</p>
+          <p className="text-text-muted mb-4">动漫不存在</p>
           <Link
             to="/"
             className="text-primary hover:underline"
@@ -159,32 +159,32 @@ const AnimeDetailPage: React.FC = () => {
         {/* 返回按钮 */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          className="flex items-center gap-2 text-text-muted hover:text-text mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>返回</span>
         </button>
 
         {/* 动漫详情 */}
-        <div className="bg-card rounded-xl overflow-hidden border border-border shadow-lg">
+        <div className="bg-surface rounded-xl overflow-hidden border border-border shadow-lg">
           {/* 封面图片 */}
           <div className="relative">
             <img
               src={anime.cover_image}
               alt={anime.title}
-              className="w-full h-auto max-h-[50vh] object-contain bg-muted"
+              className="w-full h-auto max-h-[50vh] object-contain bg-background"
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-card to-transparent h-32" />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface to-transparent h-32" />
           </div>
 
           <div className="p-6">
             {/* 标题和基本信息 */}
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-foreground mb-2">{anime.title}</h1>
+              <h1 className="text-3xl font-bold text-text mb-2">{anime.title}</h1>
               {anime.title_jp && (
-                <p className="text-lg text-muted-foreground mb-3">{anime.title_jp}</p>
+                <p className="text-lg text-text-muted mb-3">{anime.title_jp}</p>
               )}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4 flex-wrap">
+              <div className="flex items-center gap-4 text-sm text-text-muted mb-4 flex-wrap">
                 <span>{anime.studio}</span>
                 <span>•</span>
                 <span>{anime.release_year}</span>
@@ -215,23 +215,23 @@ const AnimeDetailPage: React.FC = () => {
                   </span>
                 )}
               </div>
-              <p className="text-muted-foreground leading-relaxed">{anime.description}</p>
+              <p className="text-text-muted leading-relaxed">{anime.description}</p>
             </div>
 
             {/* 评分区域 */}
-            <div className="bg-muted rounded-xl p-6 mb-6">
-              <h3 className="text-xl font-bold text-foreground mb-4">评分</h3>
+            <div className="bg-background rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-bold text-text mb-4">评分</h3>
               <div className="flex items-center gap-4">
-                <div className="text-4xl font-bold text-foreground">{averageRating.toFixed(1)}</div>
+                <div className="text-4xl font-bold text-text">{averageRating.toFixed(1)}</div>
                 <div>
                   <StarRating rating={averageRating} size="lg" />
-                  <p className="text-sm text-muted-foreground mt-1">{ratingCount} 人评分</p>
+                  <p className="text-sm text-text-muted mt-1">{ratingCount} 人评分</p>
                 </div>
               </div>
               
               {token && (
                 <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-sm text-foreground mb-2">你的评分</p>
+                  <p className="text-sm text-text mb-2">你的评分</p>
                   <StarRating
                     rating={userRating || 0}
                     onRate={handleRate}
@@ -243,8 +243,8 @@ const AnimeDetailPage: React.FC = () => {
             </div>
 
             {/* 评论区域 */}
-            <div className="bg-muted rounded-xl p-6 mb-6">
-              <h3 className="text-xl font-bold text-foreground mb-4">评论</h3>
+            <div className="bg-background rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-bold text-text mb-4">评论</h3>
               
               {token && (
                 <form onSubmit={handleSubmitComment} className="mb-6">
@@ -252,14 +252,14 @@ const AnimeDetailPage: React.FC = () => {
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="写下你的评论..."
-                    className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted-foreground resize-none mb-3"
+                    className="w-full px-4 py-3 bg-surface border border-border rounded-lg text-text placeholder-text-muted resize-none mb-3"
                     rows={3}
                     disabled={isSubmitting}
                   />
                   <button
                     type="submit"
                     disabled={isSubmitting || !newComment.trim()}
-                    className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? '发布中...' : '发布评论'}
                   </button>
@@ -269,16 +269,16 @@ const AnimeDetailPage: React.FC = () => {
               {isLoadingComments ? (
                 <div className="text-center py-8">
                   <div className="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
-                  <p className="text-muted-foreground">加载评论中...</p>
+                  <p className="text-text-muted">加载评论中...</p>
                 </div>
               ) : comments.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-text-muted">
                   暂无评论，快来抢沙发吧！
                 </div>
               ) : (
                 <div className="space-y-4">
                   {comments.map((comment) => (
-                    <div key={comment.id} className="bg-card rounded-lg p-4 border border-border">
+                    <div key={comment.id} className="bg-surface rounded-lg p-4 border border-border">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                           <span className="text-primary font-medium">
@@ -287,12 +287,12 @@ const AnimeDetailPage: React.FC = () => {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-foreground">{comment.username || '用户'}</span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="font-medium text-text">{comment.username || '用户'}</span>
+                            <span className="text-xs text-text-muted">
                               {new Date(comment.created_at).toLocaleDateString('zh-CN')}
                             </span>
                           </div>
-                          <p className="text-muted-foreground text-sm">{comment.content}</p>
+                          <p className="text-text-muted text-sm">{comment.content}</p>
                         </div>
                       </div>
                     </div>
@@ -303,7 +303,7 @@ const AnimeDetailPage: React.FC = () => {
 
             {/* 雾漫林间介绍 - 放在最底部，字体小一点 */}
             <div className="border-t border-border pt-6">
-              <div className="bg-muted/50 rounded-lg p-4">
+              <div className="bg-background/50 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                     <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,8 +311,8 @@ const AnimeDetailPage: React.FC = () => {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-medium text-foreground mb-1 text-sm">雾漫林间</h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <h4 className="font-medium text-text mb-1 text-sm">雾漫林间</h4>
+                    <p className="text-xs text-text-muted leading-relaxed">
                       雾漫林间专注于全球高分动漫推荐与评分，为你精选来自世界各地的优质动漫作品。
                       通过我们的平台，你可以发现更多值得一看的好作品，分享你的观影体验，
                       与其他漫迷一起构建专业的动漫推荐社区，探索精彩的动漫世界。
