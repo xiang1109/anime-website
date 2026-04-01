@@ -4,6 +4,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import mysql from 'mysql2/promise';
 import nodemailer from 'nodemailer';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import animeAdminRoutes from './src/server/routes/anime-admin';
 
 const app = express();
@@ -26,11 +29,59 @@ const dbConfig = {
 // 创建数据库连接池
 const pool = mysql.createPool(dbConfig);
 
-// 测试数据库连接
+// ==================== Multer配置：头像上传 ====================
+// 确保uploads目录存在
+const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    // 生成唯一文件名
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar-${uniqueSuffix}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB限制
+  },
+  fileFilter: (req, file, cb) => {
+    // 只允许图片文件
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('只允许上传图片文件'));
+    }
+  }
+});
+
+// 测试数据库连接并初始化表结构
 async function testDbConnection() {
   try {
     const connection = await pool.getConnection();
     console.log('Successfully connected to MySQL database!');
+    
+    // 检查并添加avatar字段到users表
+    try {
+      await connection.execute(`
+        ALTER TABLE users 
+        ADD COLUMN IF NOT EXISTS avatar VARCHAR(500) DEFAULT NULL 
+        AFTER email
+      `);
+      console.log('Checked users table for avatar column');
+    } catch (alterError) {
+      // 如果字段已存在会报错，忽略这个错误
+      console.log('Avatar column check completed');
+    }
+    
     connection.release();
   } catch (error) {
     console.error('Failed to connect to MySQL database:', error);
@@ -222,6 +273,37 @@ app.post('/api/send-code', async (req, res) => {
   } catch (error) {
     console.error('发送验证码错误:', error);
     res.status(500).json({ success: false, message: '发送验证码失败' });
+  }
+});
+
+// ==================== 头像上传接口 ====================
+app.post('/api/user/avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
+  try {
+    const userId = (req as any).user.id;
+    
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: '请选择要上传的图片' });
+    }
+
+    // 生成头像URL
+    const avatarUrl = `/uploads/${req.file.filename}`;
+
+    // 更新数据库中的用户头像
+    await pool.execute(
+      'UPDATE users SET avatar = ? WHERE id = ?',
+      [avatarUrl, userId]
+    );
+
+    res.json({
+      success: true,
+      message: '头像上传成功',
+      data: {
+        avatarUrl: avatarUrl
+      }
+    });
+  } catch (error) {
+    console.error('上传头像错误:', error);
+    res.status(500).json({ success: false, message: '上传头像失败' });
   }
 });
 
