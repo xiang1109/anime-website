@@ -114,7 +114,7 @@ const EMAIL_CONFIG = {
   secure: false,                             // 587端口不使用SSL
   auth: {
     user: '1184093507@qq.com',             // 发件人邮箱地址
-    pass: 'xiang1109'                       // 邮箱授权码/密码（注意：QQ邮箱需要使用授权码）
+    pass: 'yqvzjvyzqvxgfgig'                // 邮箱授权码
   },
   from: '雾漫林间 <1184093507@qq.com>'    // 发件人显示名称
 };
