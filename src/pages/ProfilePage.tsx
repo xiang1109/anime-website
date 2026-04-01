@@ -1,23 +1,8 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import API_BASE_URL from '../config/api';
-import type { Anime } from '../types';
-import AnimeCard from '../components/AnimeCard';
-import AnimeDetailModal from '../components/AnimeDetailModal';
 
 const ProfilePage: React.FC = () => {
-  const { user, logout, token } = useAuth();
-  const [ratedAnimes, setRatedAnimes] = useState<Anime[]>([]);
-  const [selectedAnime, setSelectedAnime] = useState<Anime | null>(null);
-  const [showAnimeDetail, setShowAnimeDetail] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // 这里可以获取用户评分过的动漫列表
-    // 暂时先留空，后续可以添加API
-    setIsLoading(false);
-  }, [token]);
+  const { user, logout } = useAuth();
 
   if (!user) {
     return (
@@ -42,17 +27,9 @@ const ProfilePage: React.FC = () => {
         <div className="bg-surface rounded-xl p-6 border border-border shadow-lg mb-8">
           <div className="flex items-start gap-6">
             <div className="flex-shrink-0">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.username}
-                  className="w-24 h-24 rounded-full"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-text-muted text-2xl">👤</span>
-                </div>
-              )}
+              <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="text-text-muted text-2xl">👤</span>
+              </div>
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-text mb-2">{user.username}</h1>
@@ -79,48 +56,17 @@ const ProfilePage: React.FC = () => {
         {/* 评分记录 */}
         <div className="bg-surface rounded-xl p-6 border border-border shadow-lg">
           <h2 className="text-xl font-bold text-text mb-4">我的评分</h2>
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
-              <p className="text-text-muted">加载中...</p>
-            </div>
-          ) : ratedAnimes.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-text-muted">还没有评分记录</p>
-              <Link
-                to="/"
-                className="text-primary hover:underline mt-2 inline-block"
-              >
-                去发现动漫
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {ratedAnimes.map((anime) => (
-                <AnimeCard
-                  key={anime.id}
-                  anime={anime}
-                  onClick={() => {
-                    setSelectedAnime(anime);
-                    setShowAnimeDetail(true);
-                  }}
-                />
-              ))}
-            </div>
-          )}
+          <div className="text-center py-8">
+            <p className="text-text-muted">还没有评分记录</p>
+            <Link
+              to="/"
+              className="text-primary hover:underline mt-2 inline-block"
+            >
+              去发现动漫
+            </Link>
+          </div>
         </div>
       </main>
-
-      {selectedAnime && (
-        <AnimeDetailModal
-          anime={selectedAnime}
-          isOpen={showAnimeDetail}
-          onClose={() => {
-            setShowAnimeDetail(false);
-            setSelectedAnime(null);
-          }}
-        />
-      )}
     </div>
   );
 };

@@ -117,7 +117,7 @@ router.put('/:id', async (req, res) => {
       WHERE id = ?
     `;
 
-    const [result] = await connection.execute(query, [
+    await connection.execute(query, [
       title,
       title_jp,
       cover_image,

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import SearchPage from './pages/SearchPage';
@@ -15,7 +14,7 @@ import JapanesePage from './pages/JapanesePage';
 import ProfilePage from './pages/ProfilePage';
 import AnimeDetailPage from './pages/AnimeDetailPage';
 import AnimeListPage from './components/AnimeListPage';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 const HomePage: React.FC = () => {
   return (
