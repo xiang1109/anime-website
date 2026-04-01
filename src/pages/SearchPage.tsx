@@ -10,6 +10,7 @@ interface FilterOptions {
   years: number[];
   statuses: string[];
   studios: string[];
+  authors: string[];
 }
 
 const SearchPage: React.FC = () => {
@@ -20,11 +21,15 @@ const SearchPage: React.FC = () => {
     years: [],
     statuses: [],
     studios: [],
+    authors: [],
   });
   
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null);
+  const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
+  const [selectedStartYear, setSelectedStartYear] = useState<number | null>(null);
+  const [selectedEndYear, setSelectedEndYear] = useState<number | null>(null);
   const [currentKeyword, setCurrentKeyword] = useState('');
   
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,9 +47,10 @@ const SearchPage: React.FC = () => {
       } catch (error) {
         console.error('Failed to fetch filter options:', error);
         setFilterOptions({
-          years: [2024, 2023, 2022, 2021, 2020, 2019],
+          years: [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015],
           statuses: ['连载中', '完结'],
-          studios: ['雾漫动画', '樱花动画', '星际动画', '魔法动画', '机械动画', '忍者动画', '校园动画', '武侠动画', '侦探动画', '奇幻动画', '运动动画', '科幻动画']
+          studios: ['雾漫动画', '樱花动画', '星际动画', '魔法动画', '机械动画', '忍者动画', '校园动画', '武侠动画', '侦探动画', '奇幻动画', '运动动画', '科幻动画'],
+          authors: ['尾田荣一郎', '岸本齐史', '鸟山明', '宫崎骏', '新海诚', '手冢治虫', '高桥留美子', '富坚义博', '荒川弘', '藤本树']
         });
       }
     };
@@ -78,6 +84,9 @@ const SearchPage: React.FC = () => {
     year: number | null = null,
     status: string | null = null,
     studio: string | null = null,
+    author: string | null = null,
+    startYear: number | null = null,
+    endYear: number | null = null,
     page: number = 1
   ) => {
     setIsLoading(true);
@@ -91,11 +100,20 @@ const SearchPage: React.FC = () => {
       if (year) {
         url += `&year=${year}`;
       }
+      if (startYear) {
+        url += `&startYear=${startYear}`;
+      }
+      if (endYear) {
+        url += `&endYear=${endYear}`;
+      }
       if (status) {
         url += `&status=${encodeURIComponent(status)}`;
       }
       if (studio) {
         url += `&studio=${encodeURIComponent(studio)}`;
+      }
+      if (author) {
+        url += `&author=${encodeURIComponent(author)}`;
       }
 
       const response = await fetch(url);
@@ -118,28 +136,41 @@ const SearchPage: React.FC = () => {
     setCurrentKeyword(keyword);
     setShowFilters(true);
     setCurrentPage(1);
-    performSearch(keyword, selectedYear, selectedStatus, selectedStudio, 1);
+    performSearch(keyword, selectedYear, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear, 1);
   };
 
-  const handleFilterChange = (year: number | null, status: string | null, studio: string | null) => {
+  const handleFilterChange = (
+    year: number | null, 
+    status: string | null, 
+    studio: string | null,
+    author: string | null,
+    startYear: number | null,
+    endYear: number | null
+  ) => {
     setSelectedYear(year);
     setSelectedStatus(status);
     setSelectedStudio(studio);
+    setSelectedAuthor(author);
+    setSelectedStartYear(startYear);
+    setSelectedEndYear(endYear);
     setCurrentPage(1);
-    performSearch(currentKeyword, year, status, studio, 1);
+    performSearch(currentKeyword, year, status, studio, author, startYear, endYear, 1);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    performSearch(currentKeyword, selectedYear, selectedStatus, selectedStudio, page);
+    performSearch(currentKeyword, selectedYear, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear, page);
   };
 
   const handleResetFilters = () => {
     setSelectedYear(null);
     setSelectedStatus(null);
     setSelectedStudio(null);
+    setSelectedAuthor(null);
+    setSelectedStartYear(null);
+    setSelectedEndYear(null);
     setCurrentPage(1);
-    performSearch(currentKeyword, null, null, null, 1);
+    performSearch(currentKeyword, null, null, null, null, null, null, 1);
   };
 
   return (
@@ -159,12 +190,19 @@ const SearchPage: React.FC = () => {
             years={filterOptions.years}
             statuses={filterOptions.statuses}
             studios={filterOptions.studios}
+            authors={filterOptions.authors}
             selectedYear={selectedYear}
             selectedStatus={selectedStatus}
             selectedStudio={selectedStudio}
-            onYearChange={(year) => handleFilterChange(year, selectedStatus, selectedStudio)}
-            onStatusChange={(status) => handleFilterChange(selectedYear, status, selectedStudio)}
-            onStudioChange={(studio) => handleFilterChange(selectedYear, selectedStatus, studio)}
+            selectedAuthor={selectedAuthor}
+            selectedStartYear={selectedStartYear}
+            selectedEndYear={selectedEndYear}
+            onYearChange={(year) => handleFilterChange(year, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear)}
+            onStatusChange={(status) => handleFilterChange(selectedYear, status, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear)}
+            onStudioChange={(studio) => handleFilterChange(selectedYear, selectedStatus, studio, selectedAuthor, selectedStartYear, selectedEndYear)}
+            onAuthorChange={(author) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, author, selectedStartYear, selectedEndYear)}
+            onStartYearChange={(startYear) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, selectedAuthor, startYear, selectedEndYear)}
+            onEndYearChange={(endYear) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, endYear)}
             onReset={handleResetFilters}
           />
         )}

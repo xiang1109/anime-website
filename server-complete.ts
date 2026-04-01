@@ -355,10 +355,10 @@ app.get('/api/user', authenticateToken, async (req, res) => {
   }
 });
 
-// ==================== 搜索动漫（支持按标题、描述、工作室搜索） ====================
+// ==================== 搜索动漫（支持按标题、描述、工作室、作者搜索） ====================
 app.get('/api/anime/search', async (req, res) => {
   try {
-    const { keyword, year, status, studio, page = 1, limit = 10 } = req.query;
+    const { keyword, year, startYear, endYear, status, studio, author, page = 1, limit = 10 } = req.query;
 
     let sql = 'SELECT * FROM animes WHERE 1=1';
     let params: any[] = [];
@@ -376,6 +376,18 @@ app.get('/api/anime/search', async (req, res) => {
       params.push(year);
     }
 
+    // 按起始年份筛选
+    if (startYear && !year) {
+      sql += ' AND release_year >= ?';
+      params.push(startYear);
+    }
+
+    // 按结束年份筛选
+    if (endYear && !year) {
+      sql += ' AND release_year <= ?';
+      params.push(endYear);
+    }
+
     // 按状态筛选
     if (status) {
       sql += ' AND status = ?';
@@ -386,6 +398,13 @@ app.get('/api/anime/search', async (req, res) => {
     if (studio) {
       sql += ' AND studio LIKE ?';
       params.push(`%${studio}%`);
+    }
+
+    // 按作者筛选
+    if (author) {
+      sql += ' AND (author LIKE ? OR title LIKE ?)';
+      const authorPattern = `%${author}%`;
+      params.push(authorPattern, authorPattern);
     }
 
     // 按评分排序
@@ -410,6 +429,14 @@ app.get('/api/anime/search', async (req, res) => {
       countSql += ' AND release_year = ?';
       countParams.push(year);
     }
+    if (startYear && !year) {
+      countSql += ' AND release_year >= ?';
+      countParams.push(startYear);
+    }
+    if (endYear && !year) {
+      countSql += ' AND release_year <= ?';
+      countParams.push(endYear);
+    }
     if (status) {
       countSql += ' AND status = ?';
       countParams.push(status);
@@ -417,6 +444,11 @@ app.get('/api/anime/search', async (req, res) => {
     if (studio) {
       countSql += ' AND studio LIKE ?';
       countParams.push(`%${studio}%`);
+    }
+    if (author) {
+      countSql += ' AND (author LIKE ? OR title LIKE ?)';
+      const authorPattern = `%${author}%`;
+      countParams.push(authorPattern, authorPattern);
     }
 
     const [countResult] = await pool.execute(countSql, countParams) as any[];

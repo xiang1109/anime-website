@@ -54,76 +54,107 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToRegi
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="modal-content bg-surface rounded-xl p-6 w-full max-w-md mx-4 border border-border"
+        className="relative w-full max-w-md mx-4 bg-surface rounded-3xl p-8 border border-white/10 shadow-2xl glass"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-text">登录</h2>
-          <button
-            onClick={onClose}
-            className="text-text-muted hover:text-text transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+        {/* Decorative elements */}
+        <div className="absolute -top-24 -left-24 w-48 h-48 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-full blur-3xl" />
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-2">
+                欢迎回来
+                <span className="block text-sm text-text-muted mt-1">继续你的动漫之旅</span>
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-2xl flex items-start gap-3">
+              <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-red-300 text-sm">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                账号
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={account}
+                  onChange={(e) => setAccount(e.target.value)}
+                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all hover:border-white/20"
+                  placeholder="用户名或邮箱"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                密码
+              </label>
+              <div className="relative">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all hover:border-white/20"
+                  placeholder="输入密码"
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-4 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white rounded-2xl font-bold text-lg shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 btn-glow"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>正在登录...</span>
+                </div>
+              ) : '登录'}
+            </button>
+          </form>
+
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <p className="text-center text-white/60">
+              还没有账号？
+              <button
+                onClick={onSwitchToRegister}
+                className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-400 hover:from-cyan-300 hover:to-pink-300 ml-1 font-semibold transition-all"
+              >
+                立即注册
+              </button>
+            </p>
+          </div>
         </div>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text mb-2">
-              用户名 / 手机号
-            </label>
-            <input
-              type="text"
-              value={account}
-              onChange={(e) => setAccount(e.target.value)}
-              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text placeholder-text-muted"
-              placeholder="请输入用户名或手机号"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text mb-2">
-              密码
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text placeholder-text-muted"
-              placeholder="请输入密码"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? '登录中...' : '登录'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-text-muted">
-          还没有账号？
-          <button
-            onClick={onSwitchToRegister}
-            className="text-primary hover:text-primary/80 ml-1 font-medium"
-          >
-            立即注册
-          </button>
-        </p>
       </div>
     </div>
   );

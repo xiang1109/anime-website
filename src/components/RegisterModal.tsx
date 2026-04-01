@@ -186,147 +186,199 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="modal-content bg-surface rounded-xl p-6 w-full max-w-md mx-4 border border-border max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-md mx-4 bg-surface rounded-3xl p-8 border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto glass"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-text">注册</h2>
-          <button
-            onClick={onClose}
-            className="text-text-muted hover:text-text transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-4 text-sm">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="bg-green-500/10 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg mb-4 text-sm">
-            注册成功！
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text mb-2">
-              用户名
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text placeholder-text-muted"
-              placeholder="请输入用户名（至少3个字符）"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text mb-2">
-              邮箱
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text placeholder-text-muted"
-              placeholder="请输入邮箱地址"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text mb-2">
-              滑块验证
-            </label>
-            <SliderVerification onVerify={handleSliderVerify} />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text mb-2">
-              验证码
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={verifyCode}
-                onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, ''))}
-                className="flex-1 px-4 py-3 bg-background border border-border rounded-lg text-text placeholder-text-muted"
-                placeholder="请输入6位验证码"
-                maxLength={6}
-                required
-              />
-              <button
-                type="button"
-                onClick={handleSendCode}
-                disabled={isSendingCode || countdown > 0 || !isSliderVerified}
-                className={`px-4 py-3 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                  isSendingCode || countdown > 0 || !isSliderVerified
-                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    : 'bg-primary text-white hover:bg-primary/90'
-                }`}
-              >
-                {countdown > 0 ? `${countdown}s后重发` : '发送验证码'}
-              </button>
+        {/* Decorative elements */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-full blur-3xl" />
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-2">
+                加入我们
+                <span className="block text-sm text-text-muted mt-1">开启你的动漫之旅</span>
+              </h2>
             </div>
-            <p className="text-xs text-text-muted mt-1">验证码将发送到您的邮箱</p>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-text mb-2">
-              密码
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text placeholder-text-muted"
-              placeholder="请输入密码（至少6个字符）"
-              required
-            />
+          {error && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-2xl flex items-start gap-3">
+              <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-red-300 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-2xl flex items-start gap-3">
+              <svg className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-green-300 text-sm">注册成功！欢迎加入！</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <svg className="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                用户名
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500/50 transition-all hover:border-white/20"
+                  placeholder="取个炫酷的名字吧"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                邮箱地址
+              </label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all hover:border-white/20"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                安全验证
+              </label>
+              <SliderVerification onVerify={handleSliderVerify} />
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                验证码
+              </label>
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={verifyCode}
+                    onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, ''))}
+                    className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500/50 transition-all hover:border-white/20 text-center tracking-widest font-mono text-lg"
+                    placeholder="000000"
+                    maxLength={6}
+                    required
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  disabled={isSendingCode || countdown > 0 || !isSliderVerified}
+                  className={`px-5 py-3.5 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all ${
+                    isSendingCode || countdown > 0 || !isSliderVerified
+                      ? 'bg-white/10 text-white/40 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 shadow-lg shadow-pink-500/25'
+                  }`}
+                >
+                  {countdown > 0 ? `${countdown}s` : isSendingCode ? '发送中...' : '获取验证码'}
+                </button>
+              </div>
+              <p className="text-xs text-white/50 mt-1.5 pl-1">验证码将发送到您的邮箱</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                设置密码
+              </label>
+              <div className="relative">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all hover:border-white/20"
+                  placeholder="至少6位密码"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-white">
+                <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                确认密码
+              </label>
+              <div className="relative">
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all hover:border-white/20"
+                  placeholder="再次输入密码"
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white rounded-2xl font-bold text-lg shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 btn-glow"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>正在注册...</span>
+                </div>
+              ) : '立即注册'}
+            </button>
+          </form>
+
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <p className="text-center text-white/60">
+              已经有账号了？
+              <button
+                onClick={onSwitchToLogin}
+                className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-cyan-400 hover:from-pink-300 hover:to-cyan-300 ml-1 font-semibold transition-all"
+              >
+                立即登录
+              </button>
+            </p>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text mb-2">
-              确认密码
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-text placeholder-text-muted"
-              placeholder="请再次输入密码"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? '注册中...' : '注册'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-text-muted">
-          已有账号？
-          <button
-            onClick={onSwitchToLogin}
-            className="text-primary hover:text-primary/80 ml-1 font-medium"
-          >
-            立即登录
-          </button>
-        </p>
+        </div>
       </div>
     </div>
   );

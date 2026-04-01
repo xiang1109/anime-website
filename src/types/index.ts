@@ -9,6 +9,7 @@ export interface Anime {
   release_year: number;
   release_date?: string;
   studio: string;
+  author?: string;
   genre?: string;
   average_rating: number | string;
   rating_count: number;
