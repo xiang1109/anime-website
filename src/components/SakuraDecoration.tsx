@@ -70,18 +70,18 @@ const SakuraDecoration: React.FC = () => {
       container.appendChild(glow);
     };
 
-    // 初始化星星
-    for (let i = 0; i < 30; i++) {
+    // 初始化更多星星
+    for (let i = 0; i < 80; i++) {
       createStar();
     }
 
-    // 初始化光晕
-    for (let i = 0; i < 3; i++) {
+    // 初始化更多光晕
+    for (let i = 0; i < 6; i++) {
       createGlow();
     }
 
-    // 定时创建樱花
-    const sakuraInterval = setInterval(createSakuraPetal, 800);
+    // 更频繁地创建樱花
+    const sakuraInterval = setInterval(createSakuraPetal, 300);
 
     // 窗口大小变化时重新创建装饰
     const handleResize = () => {

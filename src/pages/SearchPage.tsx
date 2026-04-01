@@ -16,7 +16,6 @@ interface FilterOptions {
 const SearchPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Anime[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     years: [],
     statuses: [],
@@ -134,7 +133,6 @@ const SearchPage: React.FC = () => {
 
   const handleSearch = (keyword: string) => {
     setCurrentKeyword(keyword);
-    setShowFilters(true);
     setCurrentPage(1);
     performSearch(keyword, selectedYear, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear, 1);
   };
@@ -177,35 +175,30 @@ const SearchPage: React.FC = () => {
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-text mb-2">搜索你喜欢的作品</h1>
-          <p className="text-text-muted">输入动漫名称、描述或其他关键词进行搜索</p>
+          <h1 className="text-3xl font-bold text-white mb-2">搜索你喜欢的作品</h1>
+          <p className="text-text-muted">使用筛选条件找到心仪的动漫</p>
         </div>
 
-        <div className="mb-6">
-          <SearchBar onSearch={handleSearch} />
-        </div>
-
-        {showFilters && (
-          <SearchFilter
-            years={filterOptions.years}
-            statuses={filterOptions.statuses}
-            studios={filterOptions.studios}
-            authors={filterOptions.authors}
-            selectedYear={selectedYear}
-            selectedStatus={selectedStatus}
-            selectedStudio={selectedStudio}
-            selectedAuthor={selectedAuthor}
-            selectedStartYear={selectedStartYear}
-            selectedEndYear={selectedEndYear}
-            onYearChange={(year) => handleFilterChange(year, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear)}
-            onStatusChange={(status) => handleFilterChange(selectedYear, status, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear)}
-            onStudioChange={(studio) => handleFilterChange(selectedYear, selectedStatus, studio, selectedAuthor, selectedStartYear, selectedEndYear)}
-            onAuthorChange={(author) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, author, selectedStartYear, selectedEndYear)}
-            onStartYearChange={(startYear) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, selectedAuthor, startYear, selectedEndYear)}
-            onEndYearChange={(endYear) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, endYear)}
-            onReset={handleResetFilters}
-          />
-        )}
+        {/* 默认显示筛选条件 */}
+        <SearchFilter
+          years={filterOptions.years}
+          statuses={filterOptions.statuses}
+          studios={filterOptions.studios}
+          authors={filterOptions.authors}
+          selectedYear={selectedYear}
+          selectedStatus={selectedStatus}
+          selectedStudio={selectedStudio}
+          selectedAuthor={selectedAuthor}
+          selectedStartYear={selectedStartYear}
+          selectedEndYear={selectedEndYear}
+          onYearChange={(year) => handleFilterChange(year, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear)}
+          onStatusChange={(status) => handleFilterChange(selectedYear, status, selectedStudio, selectedAuthor, selectedStartYear, selectedEndYear)}
+          onStudioChange={(studio) => handleFilterChange(selectedYear, selectedStatus, studio, selectedAuthor, selectedStartYear, selectedEndYear)}
+          onAuthorChange={(author) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, author, selectedStartYear, selectedEndYear)}
+          onStartYearChange={(startYear) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, selectedAuthor, startYear, selectedEndYear)}
+          onEndYearChange={(endYear) => handleFilterChange(selectedYear, selectedStatus, selectedStudio, selectedAuthor, selectedStartYear, endYear)}
+          onReset={handleResetFilters}
+        />
 
         {isLoading ? (
           <div className="text-center py-12">
