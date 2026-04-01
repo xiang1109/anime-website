@@ -1,55 +1,43 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface HoverStarEffectProps {
   isHovered: boolean;
 }
 
 const HoverStarEffect: React.FC<HoverStarEffectProps> = ({ isHovered }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [stars, setStars] = useState<HTMLDivElement[]>([]);
+  const [stars, setStars] = useState<{ id: number; x: number; y: number; delay: number; size: number }[]>([]);
 
   useEffect(() => {
-    if (!containerRef.current || !isHovered) return;
-
-    const container = containerRef.current;
-    const newStars: HTMLDivElement[] = [];
-
-    // 创建星星
-    for (let i = 0; i < 20; i++) {
-      const star = document.createElement('div');
-      star.className = 'hover-star';
-      
-      const x = Math.random() * 100;
-      const y = Math.random() * 100;
-      const delay = Math.random() * 2;
-      const size = 2 + Math.random() * 4;
-      
-      star.style.left = `${x}%`;
-      star.style.top = `${y}%`;
-      star.style.animationDelay = `${delay}s`;
-      star.style.width = `${size}px`;
-      star.style.height = `${size}px`;
-      
-      container.appendChild(star);
-      newStars.push(star);
+    if (isHovered) {
+      const newStars = Array.from({ length: 15 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        delay: Math.random() * 2,
+        size: 2 + Math.random() * 4,
+      }));
+      setStars(newStars);
+    } else {
+      setStars([]);
     }
-
-    setStars(newStars);
-
-    return () => {
-      newStars.forEach(star => {
-        if (star.parentNode === container) {
-          container.removeChild(star);
-        }
-      });
-    };
   }, [isHovered]);
 
   return (
-    <div 
-      ref={containerRef} 
-      className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`} 
-    />
+    <div className={`absolute inset-0 overflow-hidden pointer-events-none transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+      {stars.map((star) => (
+        <div
+          key={star.id}
+          className="hover-star absolute"
+          style={{
+            left: `${star.x}%`,
+            top: `${star.y}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            animationDelay: `${star.delay}s`,
+          }}
+        />
+      ))}
+    </div>
   );
 };
 

@@ -21,10 +21,10 @@ interface SearchFilterProps {
 }
 
 const SearchFilter: React.FC<SearchFilterProps> = ({
-  years,
-  statuses,
-  studios,
-  authors,
+  years = [],
+  statuses = [],
+  studios = [],
+  authors = [],
   selectedYear,
   selectedStatus,
   selectedStudio,
