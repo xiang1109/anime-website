@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
+import SakuraDecoration from './components/SakuraDecoration';
 import SearchPage from './pages/SearchPage';
 import AdminPage from './pages/AdminPage';
 import AnimeManagerPage from './pages/AnimeManagerPage';
@@ -60,6 +61,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
+      <SakuraDecoration />
       <BrowserRouter>
         <AppContent />
       </BrowserRouter>

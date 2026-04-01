@@ -103,7 +103,15 @@ const Header: React.FC = () => {
             <div className="flex items-center gap-3">
               {/* Search Button - Desktop */}
               <button
-                onClick={() => setShowSearch(!showSearch)}
+                onClick={() => {
+                  if (showSearch) {
+                    // 如果搜索已经打开，关闭它
+                    setShowSearch(false);
+                  } else {
+                    // 如果搜索没有打开，打开它
+                    setShowSearch(true);
+                  }
+                }}
                 className="hidden sm:flex items-center justify-center w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all hover:scale-105"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
