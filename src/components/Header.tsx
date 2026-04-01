@@ -21,8 +21,6 @@ const Header: React.FC = () => {
     { path: '/hidden-gems', label: '冷门佳作', labelEn: 'Hidden Gems' },
     { path: '/ongoing', label: '连载动漫', labelEn: 'Ongoing' },
     { path: '/completed', label: '完结动漫', labelEn: 'Completed' },
-    { path: '/chinese', label: '国产动漫', labelEn: 'Chinese' },
-    { path: '/japanese', label: '日本动漫', labelEn: 'Japanese' },
     { path: '/theater', label: '剧场版', labelEn: 'Theater' },
   ];
 

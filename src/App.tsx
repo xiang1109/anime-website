@@ -9,8 +9,6 @@ import CompletedPage from './pages/CompletedPage';
 import TheaterPage from './pages/TheaterPage';
 import DailyPage from './pages/DailyPage';
 import HiddenGemsPage from './pages/HiddenGemsPage';
-import ChinesePage from './pages/ChinesePage';
-import JapanesePage from './pages/JapanesePage';
 import ProfilePage from './pages/ProfilePage';
 import AnimeDetailPage from './pages/AnimeDetailPage';
 import AnimeListPage from './components/AnimeListPage';
@@ -42,8 +40,6 @@ const AppContent: React.FC = () => {
         <Route path="/theater" element={<TheaterPage />} />
         <Route path="/daily" element={<DailyPage />} />
         <Route path="/hidden-gems" element={<HiddenGemsPage />} />
-        <Route path="/chinese" element={<ChinesePage />} />
-        <Route path="/japanese" element={<JapanesePage />} />
         <Route path="/anime/:id" element={<AnimeDetailPage />} />
         <Route path="/profile" element={user ? <ProfilePage /> : <Navigate to="/" replace />} />
         <Route path="/admin" element={user?.username === 'admin' ? <AdminPage /> : <Navigate to="/" replace />} />
