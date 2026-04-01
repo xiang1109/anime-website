@@ -53,7 +53,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
         <div className="flex items-center justify-between mb-7">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500/20 via-purple-500/20 to-cyan-500/20 flex items-center justify-center border border-white/10">
-              <svg className="w-6 h-6 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
             </div>
@@ -87,11 +87,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             <select
               value={selectedYear || ''}
               onChange={(e) => onYearChange(e.target.value ? Number(e.target.value) : null)}
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500/40 transition-all hover:border-white/20"
+              className="w-full px-4 py-3.5 bg-[#141a3a] border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500/40 focus:border-pink-500/40 transition-all hover:border-white/20"
             >
-              <option value="">不限制</option>
+              <option value="" className="bg-[#141a3a] text-white">不限制</option>
               {years.map((year) => (
-                <option key={year} value={year}>
+                <option key={year} value={year} className="bg-[#141a3a] text-white">
                   {year}年
                 </option>
               ))}
@@ -109,11 +109,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             <select
               value={selectedStartYear || ''}
               onChange={(e) => onStartYearChange(e.target.value ? Number(e.target.value) : null)}
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500/40 transition-all hover:border-white/20"
+              className="w-full px-4 py-3.5 bg-[#141a3a] border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500/40 transition-all hover:border-white/20"
             >
-              <option value="">不限</option>
+              <option value="" className="bg-[#141a3a] text-white">不限</option>
               {years.map((year) => (
-                <option key={`start-${year}`} value={year}>
+                <option key={`start-${year}`} value={year} className="bg-[#141a3a] text-white">
                   {year}年及以后
                 </option>
               ))}
@@ -131,11 +131,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             <select
               value={selectedEndYear || ''}
               onChange={(e) => onEndYearChange(e.target.value ? Number(e.target.value) : null)}
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/40 transition-all hover:border-white/20"
+              className="w-full px-4 py-3.5 bg-[#141a3a] border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/40 transition-all hover:border-white/20"
             >
-              <option value="">不限</option>
+              <option value="" className="bg-[#141a3a] text-white">不限</option>
               {years.map((year) => (
-                <option key={`end-${year}`} value={year}>
+                <option key={`end-${year}`} value={year} className="bg-[#141a3a] text-white">
                   {year}年及以前
                 </option>
               ))}
@@ -153,11 +153,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             <select
               value={selectedStatus || ''}
               onChange={(e) => onStatusChange(e.target.value || null)}
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-500/40 transition-all hover:border-white/20"
+              className="w-full px-4 py-3.5 bg-[#141a3a] border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-500/40 transition-all hover:border-white/20"
             >
-              <option value="">全部状态</option>
+              <option value="" className="bg-[#141a3a] text-white">全部状态</option>
               {statuses.map((status) => (
-                <option key={status} value={status}>
+                <option key={status} value={status} className="bg-[#141a3a] text-white">
                   {status}
                 </option>
               ))}
@@ -175,11 +175,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             <select
               value={selectedStudio || ''}
               onChange={(e) => onStudioChange(e.target.value || null)}
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-yellow-500/40 focus:border-yellow-500/40 transition-all hover:border-white/20"
+              className="w-full px-4 py-3.5 bg-[#141a3a] border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-yellow-500/40 focus:border-yellow-500/40 transition-all hover:border-white/20"
             >
-              <option value="">全部工作室</option>
+              <option value="" className="bg-[#141a3a] text-white">全部工作室</option>
               {studios.map((studio) => (
-                <option key={studio} value={studio}>
+                <option key={studio} value={studio} className="bg-[#141a3a] text-white">
                   {studio}
                 </option>
               ))}
@@ -197,11 +197,11 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             <select
               value={selectedAuthor || ''}
               onChange={(e) => onAuthorChange(e.target.value || null)}
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all hover:border-white/20"
+              className="w-full px-4 py-3.5 bg-[#141a3a] border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/40 transition-all hover:border-white/20"
             >
-              <option value="">全部作者</option>
+              <option value="" className="bg-[#141a3a] text-white">全部作者</option>
               {authors.map((author) => (
-                <option key={author} value={author}>
+                <option key={author} value={author} className="bg-[#141a3a] text-white">
                   {author}
                 </option>
               ))}
