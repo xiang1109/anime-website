@@ -107,16 +107,16 @@ app.get('/api/slider-token', (req, res) => {
 });
 
 // ==================== 新接口：发送邮箱验证码 ====================
-// 邮箱配置 - 需要用户提供真实的SMTP信息
+// 邮箱配置 - QQ邮箱
 const EMAIL_CONFIG = {
-  host: process.env.EMAIL_HOST || '',       // SMTP服务器地址，例如: smtp.qq.com, smtp.gmail.com
-  port: parseInt(process.env.EMAIL_PORT || '587'), // SMTP端口，通常是587或465
-  secure: process.env.EMAIL_SECURE === 'true', // 是否使用SSL，true为465端口，false为587端口
+  host: 'smtp.qq.com',                      // QQ邮箱SMTP服务器
+  port: 587,                                 // SMTP端口
+  secure: false,                             // 587端口不使用SSL
   auth: {
-    user: process.env.EMAIL_USER || '',     // 发件人邮箱地址
-    pass: process.env.EMAIL_PASS || ''      // 邮箱授权码/密码
+    user: '1184093507@qq.com',             // 发件人邮箱地址
+    pass: 'xiang1109'                       // 邮箱授权码/密码（注意：QQ邮箱需要使用授权码）
   },
-  from: process.env.EMAIL_FROM || ''        // 发件人显示名称，例如: "雾漫林间 <noreply@example.com>"
+  from: '雾漫林间 <1184093507@qq.com>'    // 发件人显示名称
 };
 
 // 创建邮件传输器
