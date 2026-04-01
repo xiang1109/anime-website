@@ -170,11 +170,19 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
 
   if (!isOpen) return null;
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div 
+      className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" 
+      onClick={handleOverlayClick}
+    >
       <div
         className="relative w-full max-w-md mx-4 bg-surface rounded-3xl p-8 border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto glass"
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Decorative elements */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl" />

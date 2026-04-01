@@ -2,8 +2,8 @@
 
 /**
  * 处理动漫封面图片URL
- * - 如果是B站图片，可能有跨域问题，使用备用方案
- * - 提供可靠的占位图
+ * - 优先使用数据库中的原图
+ * - 提供可靠的占位图作为兜底
  */
 export function getAnimeCoverImage(anime: any): string {
   const originalUrl = anime.cover_image;
@@ -13,13 +13,6 @@ export function getAnimeCoverImage(anime: any): string {
     return getPlaceholderImage(anime);
   }
   
-  // 检查是否是B站图片，可能有跨域限制
-  if (originalUrl.includes('hdslb.com') || originalUrl.includes('bilibili.com')) {
-    // 方案1：尝试使用picsum.photos作为备用，用标题作为seed确保一致性
-    const titleForSeed = encodeURIComponent(anime.title || `anime-${anime.id}`);
-    return `https://picsum.photos/seed/${titleForSeed}/300/400`;
-  }
-  
   // 检查URL协议
   if (originalUrl.startsWith('http://')) {
     // HTTP图片可能在HTTPS环境下被阻止，尝试转换为HTTPS
@@ -27,7 +20,7 @@ export function getAnimeCoverImage(anime: any): string {
     return httpsUrl;
   }
   
-  // 正常URL，直接返回
+  // 优先返回数据库中的原图
   return originalUrl;
 }
 
