@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import SliderVerification from './SliderVerification';
+import SimpleVerification from './SimpleVerification';
 import API_BASE_URL from '../config/api';
 
 interface RegisterModalProps {
@@ -20,14 +20,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [isSliderVerified, setIsSliderVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const { login } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
       setError('');
       setSuccess(false);
-      setIsSliderVerified(false);
+      setIsVerified(false);
       setCountdown(0);
     }
   }, [isOpen]);
@@ -39,9 +39,9 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     }
   }, [countdown]);
 
-  const handleSliderVerify = (isVerified: boolean) => {
-    setIsSliderVerified(isVerified);
-    if (isVerified) {
+  const handleVerify = (verified: boolean) => {
+    setIsVerified(verified);
+    if (verified) {
       setError('');
     }
   };
@@ -52,8 +52,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
       return;
     }
 
-    if (!isSliderVerified) {
-      setError('请先完成滑块验证');
+    if (!isVerified) {
+      setError('请先完成安全验证');
       return;
     }
 
@@ -61,19 +61,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
     setError('');
 
     try {
-      const sliderResponse = await fetch(`${API_BASE_URL}/api/slider-token`);
-      const sliderResult = await sliderResponse.json();
-      if (!sliderResult.success) {
-        throw new Error('获取滑块令牌失败');
-      }
-      const sliderToken = sliderResult.data.sliderToken;
-
       const response = await fetch(`${API_BASE_URL}/api/send-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, sliderToken }),
+        body: JSON.stringify({ email }),
       });
 
       const result = await response.json();
@@ -126,21 +119,14 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
       return;
     }
 
-    if (!isSliderVerified) {
-      setError('请先完成滑块验证');
+    if (!isVerified) {
+      setError('请先完成安全验证');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const sliderResponse = await fetch(`${API_BASE_URL}/api/slider-token`);
-      const sliderResult = await sliderResponse.json();
-      if (!sliderResult.success) {
-        throw new Error('获取滑块令牌失败');
-      }
-      const sliderToken = sliderResult.data.sliderToken;
-
       const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: 'POST',
         headers: {
@@ -150,8 +136,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
           username, 
           email, 
           password, 
-          verifyCode,
-          sliderToken
+          verifyCode
         }),
       });
 
@@ -277,7 +262,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
                 </svg>
                 安全验证
               </label>
-              <SliderVerification onVerify={handleSliderVerify} />
+              <SimpleVerification onVerify={handleVerify} />
             </div>
 
             <div className="space-y-2">
@@ -302,9 +287,9 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose, onSwitch
                 <button
                   type="button"
                   onClick={handleSendCode}
-                  disabled={isSendingCode || countdown > 0 || !isSliderVerified}
+                  disabled={isSendingCode || countdown > 0 || !isVerified}
                   className={`px-5 py-3.5 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all ${
-                    isSendingCode || countdown > 0 || !isSliderVerified
+                    isSendingCode || countdown > 0 || !isVerified
                       ? 'bg-white/10 text-white/40 cursor-not-allowed'
                       : 'bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 shadow-lg shadow-pink-500/25'
                   }`}

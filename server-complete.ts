@@ -108,13 +108,7 @@ app.get('/api/slider-token', (req, res) => {
 // ==================== 新接口：发送邮箱验证码 ====================
 app.post('/api/send-code', async (req, res) => {
   try {
-    const { email, sliderToken } = req.body;
-
-    // 验证滑块
-    const slider = sliderTokens.get(sliderToken);
-    if (!slider || !slider.valid || Date.now() - slider.timestamp > SLIDER_EXPIRE_TIME) {
-      return res.status(400).json({ success: false, message: '滑块验证失败，请重新验证' });
-    }
+    const { email } = req.body;
 
     // 验证邮箱格式
     if (!email || !isValidEmail(email)) {
@@ -126,11 +120,6 @@ app.post('/api/send-code', async (req, res) => {
     
     // 存储验证码（使用email作为key）
     smsCodes.set(email, { code, timestamp: Date.now() });
-    
-    // 移除已使用的滑块令牌，并生成新的
-    sliderTokens.delete(sliderToken);
-    const newSliderToken = generateUUID();
-    sliderTokens.set(newSliderToken, { valid: true, timestamp: Date.now() });
 
     // 真实环境中这里需要调用第三方邮件服务API，如Nodemailer、SendGrid等
     console.log(`【模拟邮件发送】邮箱: ${email}, 验证码: ${code}`);
@@ -139,7 +128,6 @@ app.post('/api/send-code', async (req, res) => {
       success: true,
       message: '验证码发送成功',
       data: {
-        sliderToken: newSliderToken,
         // 注意：测试环境下返回验证码，生产环境不应返回
         testCode: code
       }
@@ -153,13 +141,7 @@ app.post('/api/send-code', async (req, res) => {
 // ==================== 用户注册（修改为邮箱注册） ====================
 app.post('/api/register', async (req, res) => {
   try {
-    const { username, email, password, verifyCode, sliderToken } = req.body;
-
-    // 验证滑块
-    const slider = sliderTokens.get(sliderToken);
-    if (!slider || !slider.valid || Date.now() - slider.timestamp > SLIDER_EXPIRE_TIME) {
-      return res.status(400).json({ success: false, message: '滑块验证失败，请重新验证' });
-    }
+    const { username, email, password, verifyCode } = req.body;
 
     // 验证邮箱验证码
     const storedCode = smsCodes.get(email);
@@ -204,9 +186,8 @@ app.post('/api/register', async (req, res) => {
       [username, email, hashedPassword, avatar]
     ) as any;
 
-    // 清除已使用的验证码和滑块令牌
+    // 清除已使用的验证码
     smsCodes.delete(email);
-    sliderTokens.delete(sliderToken);
 
     // 生成token自动登录
     const token = jwt.sign({ id: result.insertId, username }, JWT_SECRET, { expiresIn: '7d' });
