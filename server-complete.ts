@@ -307,6 +307,57 @@ app.post('/api/user/avatar', authenticateToken, upload.single('avatar'), async (
   }
 });
 
+// ==================== 获取用户的评分记录 ====================
+app.get('/api/user/ratings', authenticateToken, async (req, res) => {
+  try {
+    const userId = (req as any).user.id;
+    
+    const [ratings] = await pool.execute(`
+      SELECT r.*, a.title, a.cover_image 
+      FROM ratings r 
+      JOIN animes a ON r.anime_id = a.id 
+      WHERE r.user_id = ? 
+      ORDER BY r.created_at DESC
+    `, [userId]) as any[];
+
+    res.json({
+      success: true,
+      data: {
+        ratings: ratings
+      }
+    });
+  } catch (error) {
+    console.error('获取用户评分错误:', error);
+    res.status(500).json({ success: false, message: '获取评分记录失败' });
+  }
+});
+
+// ==================== 获取用户的评论记录 ====================
+app.get('/api/user/comments', authenticateToken, async (req, res) => {
+  try {
+    const userId = (req as any).user.id;
+    
+    const [comments] = await pool.execute(`
+      SELECT c.*, a.title, a.cover_image, u.username, u.avatar
+      FROM comments c 
+      JOIN animes a ON c.anime_id = a.id 
+      JOIN users u ON c.user_id = u.id 
+      WHERE c.user_id = ? 
+      ORDER BY c.created_at DESC
+    `, [userId]) as any[];
+
+    res.json({
+      success: true,
+      data: {
+        comments: comments
+      }
+    });
+  } catch (error) {
+    console.error('获取用户评论错误:', error);
+    res.status(500).json({ success: false, message: '获取评论记录失败' });
+  }
+});
+
 // ==================== 用户注册（修改为邮箱注册） ====================
 app.post('/api/register', async (req, res) => {
   try {
