@@ -10,7 +10,6 @@ const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -42,8 +41,7 @@ const Header: React.FC = () => {
     };
   }, []);
 
-  const handleSearchComplete = () => {
-    setShowSearch(false);
+  const handleSearchClick = () => {
     navigate('/search');
   };
 
@@ -103,15 +101,7 @@ const Header: React.FC = () => {
             <div className="flex items-center gap-3">
               {/* Search Button - Desktop */}
               <button
-                onClick={() => {
-                  if (showSearch) {
-                    // 如果搜索已经打开，关闭它
-                    setShowSearch(false);
-                  } else {
-                    // 如果搜索没有打开，打开它
-                    setShowSearch(true);
-                  }
-                }}
+                onClick={handleSearchClick}
                 className="hidden sm:flex items-center justify-center w-11 h-11 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-all hover:scale-105"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,15 +220,6 @@ const Header: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Search Bar */}
-        {showSearch && (
-          <div className="border-t border-white/10 bg-surface/95 backdrop-blur-xl">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-              <SearchBar onSearch={handleSearchComplete} />
-            </div>
-          </div>
-        )}
 
         {/* Mobile Menu */}
         {isMenuOpen && (

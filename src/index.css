@@ -86,29 +86,24 @@ body::before {
   }
 }
 
-/* 星空效果 - 更亮更明显 */
-.star {
-  position: fixed;
-  width: 4px;
-  height: 4px;
-  background: radial-gradient(circle, #ffffff 0%, #87ceeb 100%);
+/* 悬停星星效果 - 只在卡片悬停时显示 */
+.hover-star {
+  position: absolute;
+  background: radial-gradient(circle, #ffffff 0%, #ffb6c1 50%, #dda0dd 100%);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 50;
-  animation: twinkle 1.5s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(135, 206, 250, 0.8), 0 0 16px rgba(135, 206, 250, 0.4);
+  animation: hoverStarTwinkle 2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 182, 193, 0.6), 0 0 30px rgba(221, 160, 221, 0.4);
 }
 
-@keyframes twinkle {
-  0%, 100% { 
-    opacity: 0.6; 
-    transform: scale(1); 
-    box-shadow: 0 0 6px rgba(135, 206, 250, 0.6);
+@keyframes hoverStarTwinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
   }
-  50% { 
-    opacity: 1; 
-    transform: scale(2); 
-    box-shadow: 0 0 15px rgba(255, 255, 255, 1), 0 0 30px rgba(135, 206, 250, 0.8);
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
   }
 }
 

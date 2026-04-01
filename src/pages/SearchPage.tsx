@@ -179,6 +179,11 @@ const SearchPage: React.FC = () => {
           <p className="text-text-muted">使用筛选条件找到心仪的动漫</p>
         </div>
 
+        {/* 搜索栏 */}
+        <div className="mb-8">
+          <SearchBar onSearch={handleSearch} placeholder="搜索动漫..." />
+        </div>
+
         {/* 默认显示筛选条件 */}
         <SearchFilter
           years={filterOptions.years}

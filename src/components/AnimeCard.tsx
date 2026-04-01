@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Anime } from '../types';
 import StarRating from './StarRating';
 import { getAnimeCoverImage, getGradientColor } from '../utils/imageUtils';
+import HoverStarEffect from './HoverStarEffect';
 
 interface AnimeCardProps {
   anime: Anime;
@@ -19,6 +20,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
   const displayRating = rating > 0 ? rating.toFixed(1) : 'N/A';
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   
   // 使用工具函数处理图片URL
   const imageUrl = getAnimeCoverImage(anime);
@@ -37,7 +39,12 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
   };
   
   const cardContent = (
-    <div className="group h-full">
+    <div 
+      className="group h-full relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <HoverStarEffect isHovered={isHovered} />
       <div className="relative overflow-hidden">
         {/* 图片占位加载 */}
         <div 

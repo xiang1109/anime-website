@@ -35,22 +35,6 @@ const SakuraDecoration: React.FC = () => {
       }, (duration + delay) * 1000);
     };
 
-    // 创建星星
-    const createStar = () => {
-      const star = document.createElement('div');
-      star.className = 'star';
-      
-      const x = Math.random() * window.innerWidth;
-      const y = Math.random() * window.innerHeight;
-      const delay = Math.random() * 2;
-      
-      star.style.left = `${x}px`;
-      star.style.top = `${y}px`;
-      star.style.animationDelay = `${delay}s`;
-      
-      container.appendChild(star);
-    };
-
     // 创建梦幻光晕
     const createGlow = () => {
       const glow = document.createElement('div');
@@ -70,12 +54,7 @@ const SakuraDecoration: React.FC = () => {
       container.appendChild(glow);
     };
 
-    // 初始化更多星星
-    for (let i = 0; i < 80; i++) {
-      createStar();
-    }
-
-    // 初始化更多光晕
+    // 初始化光晕
     for (let i = 0; i < 6; i++) {
       createGlow();
     }
@@ -86,9 +65,6 @@ const SakuraDecoration: React.FC = () => {
     // 窗口大小变化时重新创建装饰
     const handleResize = () => {
       container.innerHTML = '';
-      for (let i = 0; i < 30; i++) {
-        createStar();
-      }
       for (let i = 0; i < 3; i++) {
         createGlow();
       }
