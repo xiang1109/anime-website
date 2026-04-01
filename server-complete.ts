@@ -3,6 +3,7 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import mysql from 'mysql2/promise';
+import nodemailer from 'nodemailer';
 import animeAdminRoutes from './src/server/routes/anime-admin';
 
 const app = express();
@@ -106,6 +107,45 @@ app.get('/api/slider-token', (req, res) => {
 });
 
 // ==================== 新接口：发送邮箱验证码 ====================
+// 邮箱配置 - 需要用户提供真实的SMTP信息
+const EMAIL_CONFIG = {
+  host: process.env.EMAIL_HOST || '',       // SMTP服务器地址，例如: smtp.qq.com, smtp.gmail.com
+  port: parseInt(process.env.EMAIL_PORT || '587'), // SMTP端口，通常是587或465
+  secure: process.env.EMAIL_SECURE === 'true', // 是否使用SSL，true为465端口，false为587端口
+  auth: {
+    user: process.env.EMAIL_USER || '',     // 发件人邮箱地址
+    pass: process.env.EMAIL_PASS || ''      // 邮箱授权码/密码
+  },
+  from: process.env.EMAIL_FROM || ''        // 发件人显示名称，例如: "雾漫林间 <noreply@example.com>"
+};
+
+// 创建邮件传输器
+let transporter: nodemailer.Transporter | null = null;
+
+// 检查邮箱配置是否完整
+function isEmailConfigured(): boolean {
+  return !!(EMAIL_CONFIG.host && EMAIL_CONFIG.auth.user && EMAIL_CONFIG.auth.pass);
+}
+
+// 初始化邮件传输器
+if (isEmailConfigured()) {
+  transporter = nodemailer.createTransport({
+    host: EMAIL_CONFIG.host,
+    port: EMAIL_CONFIG.port,
+    secure: EMAIL_CONFIG.secure,
+    auth: EMAIL_CONFIG.auth
+  });
+  console.log('邮件服务已配置');
+} else {
+  console.log('⚠️  邮件服务未配置，将使用模拟模式。请设置以下环境变量：');
+  console.log('  EMAIL_HOST: SMTP服务器地址');
+  console.log('  EMAIL_PORT: SMTP端口 (587或465)');
+  console.log('  EMAIL_SECURE: 是否使用SSL (true/false)');
+  console.log('  EMAIL_USER: 发件人邮箱');
+  console.log('  EMAIL_PASS: 邮箱授权码');
+  console.log('  EMAIL_FROM: 发件人显示名称');
+}
+
 app.post('/api/send-code', async (req, res) => {
   try {
     const { email } = req.body;
@@ -121,16 +161,63 @@ app.post('/api/send-code', async (req, res) => {
     // 存储验证码（使用email作为key）
     smsCodes.set(email, { code, timestamp: Date.now() });
 
-    // 真实环境中这里需要调用第三方邮件服务API，如Nodemailer、SendGrid等
+    // 尝试发送真实邮件
+    if (isEmailConfigured() && transporter) {
+      try {
+        const mailOptions = {
+          from: EMAIL_CONFIG.from || EMAIL_CONFIG.auth.user,
+          to: email,
+          subject: '【雾漫林间】邮箱验证码',
+          html: `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #ff6b9d 0%, #c44cff 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">雾漫林间</h1>
+                <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Anime World</p>
+              </div>
+              <div style="background: white; padding: 40px; border-radius: 0 0 12px 12px; border: 1px solid #e5e7eb;">
+                <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 20px;">邮箱验证码</h2>
+                <p style="color: #6b7280; margin: 0 0 30px 0; line-height: 1.6;">
+                  您好！您正在注册雾漫林间账号，请使用以下验证码完成注册：
+                </p>
+                <div style="background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); padding: 25px; border-radius: 8px; text-align: center; margin: 30px 0;">
+                  <div style="font-size: 36px; font-weight: bold; letter-spacing: 10px; color: #ff6b9d; font-family: 'Courier New', monospace;">
+                    ${code}
+                  </div>
+                </div>
+                <p style="color: #9ca3af; font-size: 14px; margin: 30px 0 0 0;">
+                  验证码有效期为5分钟，请及时使用。<br>
+                  如果这不是您本人的操作，请忽略此邮件。
+                </p>
+              </div>
+              <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
+                <p>此邮件由系统自动发送，请勿回复</p>
+              </div>
+            </div>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`【邮件发送成功】邮箱: ${email}, 验证码: ${code}`);
+        
+        res.json({
+          success: true,
+          message: '验证码已发送到您的邮箱，请注意查收'
+        });
+        return;
+      } catch (emailError) {
+        console.error('邮件发送失败:', emailError);
+        // 如果邮件发送失败，继续使用模拟模式
+      }
+    }
+
+    // 模拟模式（未配置邮箱时使用）
     console.log(`【模拟邮件发送】邮箱: ${email}, 验证码: ${code}`);
 
     res.json({
       success: true,
-      message: '验证码发送成功',
-      data: {
-        // 注意：测试环境下返回验证码，生产环境不应返回
-        testCode: code
-      }
+      message: isEmailConfigured() 
+        ? '验证码发送失败，但您可以使用控制台中的验证码进行测试' 
+        : '邮件服务未配置，当前为模拟模式。验证码已打印在服务端控制台'
     });
   } catch (error) {
     console.error('发送验证码错误:', error);
