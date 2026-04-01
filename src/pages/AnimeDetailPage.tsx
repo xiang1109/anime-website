@@ -17,6 +17,7 @@ const AnimeDetailPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const { token } = useAuth();
 
   useEffect(() => {
@@ -27,6 +28,7 @@ const AnimeDetailPage: React.FC = () => {
 
   const fetchAnimeDetail = async (animeId: number) => {
     setIsLoading(true);
+    setImageError(false);
     try {
       const response = await fetch(`${API_BASE_URL}/api/anime/${animeId}`);
       const result = await response.json();
@@ -43,6 +45,20 @@ const AnimeDetailPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // 生成动漫主题色的占位背景
+  const getPlaceholderGradient = () => {
+    if (!anime) return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    const colors = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+    ];
+    const index = anime.id % colors.length;
+    return colors[index];
   };
 
   const fetchComments = async (animeId: number) => {
@@ -168,11 +184,24 @@ const AnimeDetailPage: React.FC = () => {
         <div className="bg-surface rounded-xl overflow-hidden border border-border shadow-lg">
           {/* 封面图片 */}
           <div className="relative">
-            <img
-              src={anime.cover_image}
-              alt={anime.title}
-              className="w-full h-auto max-h-[50vh] object-contain bg-background"
-            />
+            {imageError ? (
+              <div 
+                className="w-full h-[300px] flex flex-col items-center justify-center"
+                style={{ background: getPlaceholderGradient() }}
+              >
+                <span className="text-6xl mb-4">🎬</span>
+                <span className="text-white text-xl font-bold">
+                  {anime.title}
+                </span>
+              </div>
+            ) : (
+              <img
+                src={anime.cover_image}
+                alt={anime.title}
+                className="w-full h-auto max-h-[50vh] object-contain bg-background"
+                onError={() => setImageError(true)}
+              />
+            )}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface to-transparent h-32" />
           </div>
 

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useState } from 'react-router-dom';
 import type { Anime } from '../types';
 import StarRating from './StarRating';
 
@@ -16,15 +16,43 @@ const AnimeCard: React.FC<AnimeCardProps> = ({
   // 计算评分，如果为0或没有评分则显示N/A
   const rating = Number(anime.average_rating);
   const displayRating = rating > 0 ? rating.toFixed(1) : 'N/A';
+  const [imageError, setImageError] = useState(false);
+  
+  // 生成动漫主题色的占位背景
+  const getPlaceholderGradient = () => {
+    const colors = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+    ];
+    const index = anime.id % colors.length;
+    return colors[index];
+  };
   
   const cardContent = (
     <div className="group">
       <div className="relative">
-        <img
-          src={anime.cover_image}
-          alt={anime.title}
-          className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {imageError ? (
+          <div 
+            className="w-full h-64 flex flex-col items-center justify-center"
+            style={{ background: getPlaceholderGradient() }}
+          >
+            <span className="text-4xl mb-2">🎬</span>
+            <span className="text-white text-sm font-medium text-center px-2">
+              {anime.title}
+            </span>
+          </div>
+        ) : (
+          <img
+            src={anime.cover_image}
+            alt={anime.title}
+            className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={() => setImageError(true)}
+            loading="lazy"
+          />
+        )}
         <div className="absolute top-2 left-2 flex gap-2 flex-wrap">
           {anime.nationality && anime.nationality !== '日本' && (
             <span className={`px-2 py-1 text-xs rounded-full ${

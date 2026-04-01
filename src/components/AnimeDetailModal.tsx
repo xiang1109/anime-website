@@ -18,6 +18,7 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
   const [ratingCount, setRatingCount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const { token } = useAuth();
 
   useEffect(() => {
@@ -25,9 +26,24 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
       setUserRating(null);
       setAverageRating(Number(anime.average_rating || 0));
       setRatingCount(Number(anime.rating_count || 0));
+      setImageError(false);
       fetchComments(anime.id);
     }
   }, [anime, isOpen]);
+
+  // 生成动漫主题色的占位背景
+  const getPlaceholderGradient = () => {
+    if (!anime) return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    const colors = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+    ];
+    const index = anime.id % colors.length;
+    return colors[index];
+  };
 
   const fetchComments = async (animeId: number) => {
     if (!animeId) return;
@@ -119,11 +135,24 @@ const AnimeDetailModal: React.FC<AnimeDetailModalProps> = ({ isOpen, onClose, an
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative">
-          <img
-            src={anime.cover_image}
-            alt={anime.title}
-            className="w-full h-auto max-h-[50vh] object-contain"
-          />
+          {imageError ? (
+            <div 
+              className="w-full h-[300px] flex flex-col items-center justify-center"
+              style={{ background: getPlaceholderGradient() }}
+            >
+              <span className="text-6xl mb-4">🎬</span>
+              <span className="text-white text-xl font-bold">
+                {anime.title}
+              </span>
+            </div>
+          ) : (
+            <img
+              src={anime.cover_image}
+              alt={anime.title}
+              className="w-full h-auto max-h-[50vh] object-contain"
+              onError={() => setImageError(true)}
+            />
+          )}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-full p-2 text-text hover:text-white transition-colors"
