@@ -1045,7 +1045,17 @@ app.get('/api/anime/filter-options', async (req, res) => {
 
     // 获取所有工作室
     const [studioResult] = await pool.execute(
-      'SELECT DISTINCT studio FROM animes WHERE studio IS NOT NULL ORDER BY studio'
+      'SELECT DISTINCT studio FROM animes WHERE studio IS NOT NULL AND studio != "" ORDER BY studio'
+    ) as any[];
+
+    // 获取所有作者（这里用studio模拟，或者单独字段）
+    const [authorResult] = await pool.execute(
+      'SELECT DISTINCT studio FROM animes WHERE studio IS NOT NULL AND studio != "" ORDER BY studio LIMIT 20'
+    ) as any[];
+
+    // 获取所有国家
+    const [nationalityResult] = await pool.execute(
+      'SELECT DISTINCT nationality FROM animes WHERE nationality IS NOT NULL AND nationality != ""'
     ) as any[];
 
     res.json({
@@ -1053,7 +1063,9 @@ app.get('/api/anime/filter-options', async (req, res) => {
       data: {
         years: yearsResult.map((item: any) => item.release_year),
         statuses: statusResult.map((item: any) => item.status),
-        studios: studioResult.map((item: any) => item.studio)
+        studios: studioResult.map((item: any) => item.studio),
+        authors: authorResult.map((item: any) => item.studio),
+        nationalities: nationalityResult.map((item: any) => item.nationality)
       }
     });
   } catch (error) {
