@@ -45,50 +45,43 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 标题区域 - 秒速五厘米风格 */}
+        {/* 标题区域 */}
         {(title || description) && (
           <div className="mb-8">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-cyan-500/10 border border-white/10 p-8 mb-6">
-              {/* 装饰性背景 */}
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-pink-500/20 rounded-full blur-3xl" />
-                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl" />
-              </div>
-              
-              <div className="relative z-10 flex items-start gap-6">
-                {/* 秒速五厘米风格头像 - 男女主 */}
-                <div className="flex-shrink-0">
-                  <div className="relative">
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-xl shadow-pink-500/30 border-2 border-white/20">
-                      <span className="text-4xl">🌸</span>
-                    </div>
-                    <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-xl shadow-cyan-500/30 border-2 border-white/20">
-                      <span className="text-2xl">🚃</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* 标题和文字 */}
-                <div className="flex-1">
-                  {title && (
-                    <h2 className="text-3xl font-bold text-white mb-2">
-                      {title}
-                    </h2>
-                  )}
-                  {description && (
-                    <p className="text-text-muted mb-3">
-                      {description}
-                    </p>
-                  )}
-                  {/* 秒速五厘米风格标语 */}
-                  <p className="text-sm text-pink-300/80 italic">
-                    "樱花飘落的速度，是每秒五厘米..."
-                  </p>
-                </div>
+            {title && (
+              <h2 className="text-3xl font-bold text-text mb-2">
+                {title}
+              </h2>
+            )}
+            {description && (
+              <p className="text-text-muted">
+                {description}
+              </p>
+            )}
+          </div>
+        )}
+        
+        {/* 秒速五厘米经典台词 - 带特效 */}
+        <div className="relative mb-10">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500/15 via-purple-500/10 to-cyan-500/15 border border-white/10 p-6">
+            {/* 装饰性背景 */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute -top-8 -right-8 w-24 h-24 bg-pink-500/20 rounded-full blur-2xl animate-pulse" />
+              <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
+            </div>
+            
+            <div className="relative z-10 text-center">
+              <p className="text-xl md:text-2xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 italic animate-pulse">
+                "樱花飘落的速度，是每秒五厘米..."
+              </p>
+              <div className="mt-2 flex justify-center gap-2">
+                <span className="text-2xl animate-bounce" style={{ animationDelay: '0s' }}>🌸</span>
+                <span className="text-2xl animate-bounce" style={{ animationDelay: '0.2s' }}>🌸</span>
+                <span className="text-2xl animate-bounce" style={{ animationDelay: '0.4s' }}>🌸</span>
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         {isLoading ? (
           <div className="text-center py-12">
