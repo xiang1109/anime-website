@@ -1277,6 +1277,45 @@ app.post('/api/anime/:id/comments', authenticateToken, async (req, res) => {
   }
 });
 
+// ==================== 删除评论（仅管理员） ====================
+app.delete('/api/admin/comments/:id', authenticateToken, async (req, res) => {
+  try {
+    const commentId = parseInt(req.params.id || '0');
+    if (isNaN(commentId) || commentId <= 0) {
+      return res.status(400).json({ success: false, message: '无效的评论ID' });
+    }
+
+    // 检查当前用户是否是admin
+    const userId = (req as any).user.id;
+    const [users] = await pool.execute(
+      'SELECT username FROM users WHERE id = ?',
+      [userId]
+    ) as any[];
+
+    if (users.length === 0 || users[0].username !== 'admin') {
+      return res.status(403).json({ success: false, message: '只有管理员可以删除评论' });
+    }
+
+    // 删除评论
+    const [result] = await pool.execute(
+      'DELETE FROM comments WHERE id = ?',
+      [commentId]
+    ) as any;
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: '评论不存在' });
+    }
+
+    res.json({
+      success: true,
+      message: '评论删除成功'
+    });
+  } catch (error) {
+    console.error('删除评论错误:', error);
+    res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
 // ==================== 启动服务器 ====================
 app.listen(PORT, () => {
   console.log(`服务器运行在 http://localhost:${PORT}`);
