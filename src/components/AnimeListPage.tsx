@@ -45,35 +45,36 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 标题区域 */}
+        {/* 标题区域 - 台词和标题在同一水平线 */}
         {(title || description) && (
           <div className="mb-8">
-            {title && (
-              <h2 className="text-3xl font-bold text-text mb-2">
-                {title}
-              </h2>
-            )}
+            <div className="flex items-baseline gap-4 flex-wrap">
+              {title && (
+                <h2 className="text-3xl font-bold text-text">
+                  {title}
+                </h2>
+              )}
+              
+              {/* 秒速五厘米经典台词 */}
+              <div className="relative inline-block">
+                {/* 装饰樱花 */}
+                <span className="absolute -left-8 top-1/2 -translate-y-1/2 text-lg animate-bounce">🌸</span>
+                <span className="absolute -right-8 top-1/2 -translate-y-1/2 text-lg animate-bounce" style={{ animationDelay: '0.3s' }}>🌸</span>
+                
+                {/* 台词 */}
+                <p className="text-base md:text-lg font-medium text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 italic px-8">
+                  "樱花飘落的速度，是每秒五厘米..."
+                </p>
+              </div>
+            </div>
+            
             {description && (
-              <p className="text-text-muted">
+              <p className="text-text-muted mt-2">
                 {description}
               </p>
             )}
           </div>
         )}
-        
-        {/* 秒速五厘米经典台词 - 正中间加樱花特效 */}
-        <div className="relative mb-10 text-center">
-          <div className="relative inline-block">
-            {/* 装饰樱花 */}
-            <span className="absolute -left-12 top-1/2 -translate-y-1/2 text-2xl animate-bounce">🌸</span>
-            <span className="absolute -right-12 top-1/2 -translate-y-1/2 text-2xl animate-bounce" style={{ animationDelay: '0.3s' }}>🌸</span>
-            
-            {/* 台词 */}
-            <p className="text-lg md:text-xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 italic">
-              "樱花飘落的速度，是每秒五厘米..."
-            </p>
-          </div>
-        </div>
 
         {isLoading ? (
           <div className="text-center py-12">

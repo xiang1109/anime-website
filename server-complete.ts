@@ -863,14 +863,15 @@ app.get('/api/anime/theater', async (req, res) => {
   }
 });
 
-// ==================== 获取B站冷门佳作 ====================
+// ==================== 获取冷门佳作 ====================
 app.get('/api/anime/hidden-gems', async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
 
+    // 冷门佳作：评分较高但评分人数较少的动漫
     let sql = `SELECT * FROM animes 
-               WHERE is_hidden_gem = 1 
-               ORDER BY average_rating DESC, rating_count DESC`;
+               WHERE rating_count > 0 AND rating_count < 100
+               ORDER BY average_rating DESC, rating_count ASC`;
 
     // 分页
     const offset = (Number(page) - 1) * Number(limit);
@@ -880,7 +881,7 @@ app.get('/api/anime/hidden-gems', async (req, res) => {
 
     // 获取总数
     const [countResult] = await pool.execute(
-      'SELECT COUNT(*) as total FROM animes WHERE is_hidden_gem = 1'
+      'SELECT COUNT(*) as total FROM animes WHERE rating_count > 0 AND rating_count < 100'
     ) as any[];
     const total = countResult[0].total;
 
