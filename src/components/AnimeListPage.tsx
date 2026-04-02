@@ -45,28 +45,27 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 标题区域 */}
+        {/* 标题区域 - 和台词放在一起 */}
         {(title || description) && (
           <div className="mb-8">
             {title && (
-              <h2 className="text-3xl font-bold text-text mb-2">
-                {title}
-              </h2>
+              <div className="flex items-baseline gap-4 flex-wrap">
+                <h2 className="text-3xl font-bold text-text">
+                  {title}
+                </h2>
+                {/* 秒速五厘米经典台词 - 炫彩小字体 */}
+                <p className="text-base font-medium text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 italic">
+                  "樱花飘落的速度，是每秒五厘米..."
+                </p>
+              </div>
             )}
             {description && (
-              <p className="text-text-muted">
+              <p className="text-text-muted mt-2">
                 {description}
               </p>
             )}
           </div>
         )}
-        
-        {/* 秒速五厘米经典台词 - 简单样式 */}
-        <div className="mb-10 text-center">
-          <p className="text-xl md:text-2xl font-medium text-pink-300/90 italic">
-            "樱花飘落的速度，是每秒五厘米..."
-          </p>
-        </div>
 
         {isLoading ? (
           <div className="text-center py-12">
