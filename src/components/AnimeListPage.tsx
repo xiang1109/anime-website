@@ -61,26 +61,11 @@ const AnimeListPage: React.FC<AnimeListPageProps> = ({
           </div>
         )}
         
-        {/* 秒速五厘米经典台词 - 带特效 */}
-        <div className="relative mb-10">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500/15 via-purple-500/10 to-cyan-500/15 border border-white/10 p-6">
-            {/* 装饰性背景 */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute -top-8 -right-8 w-24 h-24 bg-pink-500/20 rounded-full blur-2xl animate-pulse" />
-              <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }} />
-            </div>
-            
-            <div className="relative z-10 text-center">
-              <p className="text-xl md:text-2xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 italic animate-pulse">
-                "樱花飘落的速度，是每秒五厘米..."
-              </p>
-              <div className="mt-2 flex justify-center gap-2">
-                <span className="text-2xl animate-bounce" style={{ animationDelay: '0s' }}>🌸</span>
-                <span className="text-2xl animate-bounce" style={{ animationDelay: '0.2s' }}>🌸</span>
-                <span className="text-2xl animate-bounce" style={{ animationDelay: '0.4s' }}>🌸</span>
-              </div>
-            </div>
-          </div>
+        {/* 秒速五厘米经典台词 - 简单样式 */}
+        <div className="mb-10 text-center">
+          <p className="text-xl md:text-2xl font-medium text-pink-300/90 italic">
+            "樱花飘落的速度，是每秒五厘米..."
+          </p>
         </div>
 
         {isLoading ? (
